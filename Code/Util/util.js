@@ -11,6 +11,7 @@
  * @description Used for logging information directly to the console
  */
 this.LOG_TO_CONSOLE =  1;
+this.LOG_TO_FILE = 2;
 
 
 /**
@@ -24,6 +25,8 @@ this.logger = function logger(logCode, msg){
 	default:	
 	case this.LOG_TO_CONSOLE:
 		console.log(msg);
+		break;
+	case this.LOG_TO_FILE:
 		break;
 	}
 };

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<script type = "text/javascript" src = "jquery-1.7.1.min.js"> </script>
+	
+	<link rel = "stylesheet" href = "bar_styles.css" />
+	<script type = "text/javascript">
+	$(document).ready(setupBar);
+	function setupBar() {
+		$("a.navMenu").hover(function() {				
+			$("a.navMenu").animate( { height: '300px', top: '-270px' }, 350);
+		}, function() {
+			$("a.navMenu").animate( { height: '20px', top: '0px' }, 350);
+		});
+	}
+	</script>
+	<div id = "barMain">
+		<div class = "navSplitter">
+			<div class = "itemContainer">
+				<a href = "#" class = "navMenu">Navigation</a>
+			</div>
+		</div>
+		<div class = "navSplitter">
+			Search Bar
+		</div>
+		<div class = "navSplitter">
+			User Information
+		</div>
+	</div>
+</html>

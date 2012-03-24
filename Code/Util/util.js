@@ -21,10 +21,9 @@ this.LOG_TO_CONSOLE =  1;
 this.logger = function logger(logCode, msg){
 	switch(logCode)
 	{
+	default:	
 	case this.LOG_TO_CONSOLE:
 		console.log(msg);
 		break;
-	default:
-		console.log(msg);
 	}
 };

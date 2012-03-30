@@ -16,22 +16,22 @@ var path = require("path");
  * @description Used to store cached files in to memory.
  *
  **/
-this.cache = {};
+this.cache = new Object;
  
 /**
  * Extracts the extension from the filename.
  * @param path		The path of the file from which to extract the extension.
  */
-this.getExtension = function(path) {
-	return path.extname(path);
+var getExtension = function(filePath) {
+	return path.extname(filePath);
 }
 
 /**
  * Extracts the name of the file specified.
  * @param path		The path of the file from which to extract the filename.
  */
-this.getFilename = function(path) {
-	return path.basename(path);
+var getFilename = function(filePath) {
+	return path.basename(filePath);
 }
 
 /**
@@ -41,44 +41,43 @@ this.getFilename = function(path) {
  * @param callback	A callback function to be run when the file has been loaded. The callback function
  *			should be constructed in the format of -- function(error, data).
  */
-this.getFile = function(path, cacheFlag, callback) {
-	// Error flag.
-	var error = false;
+var getFile = function(path, cacheFlag, callback) {
+	// Extract the filename
+	var fileName = this.getFilename(path);
 
 	// First we check to see if we have the object in the cache.
-	if (this.cache[path] != undefined) {
-		callback(error, data);
+	if (this.cache[fileName] != undefined) {
+		callback(false, this.cache[fileName]);
 	}
 	// Otherwise we load the file in, and cache it if the boolean is set.
 	else {
-		console.log(this.cache);
-		fs.readFile(path, function(err, data) {
+		var newCache = this.cache;
+		fs.readFile(path, "utf8", function(err, data) {
 			// Set our error flag
-			if (err) {
-				error = err;
-				util.logger(util.LOG_TO_CONSOLE, "ERROR loading file " + path);
-			} else {
+			if (!err) {
 				if (cacheFlag != undefined && cacheFlag == true) {
-					
+					newCache[fileName] = data;
 				}
 			}
-			callback(error, data);
+			callback(err, data);
 		});
+		this.cache = newCache;
 	}
 }
 
 /**
  * Gets the contents of the cache.
+ * @returns	{String} A string containing the alphanumeric indicies of the cache.
  */
-this.getCacheContents = function() {
-	var contents = "{";
-	
-	for (var k in this.cache) {
-		contents += k + ",";
-	}
-	
-	contents += "}";
-		
+var getCacheContents = function() {
+	var contents = "";
+	for (var k in this.cache)
+		contents += k + " ";
 	return contents;
 }
 
+// Export our functions for this module.
+exports.getFile = getFile;
+exports.getCacheContents = getCacheContents;
+exports.getExtension = getExtension;
+exports.getFilename = getFilename;

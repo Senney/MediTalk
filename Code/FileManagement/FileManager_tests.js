@@ -6,51 +6,53 @@
 /**
  * Constant values describing events in our tests.
  */
-const PASS = "Test Passed";
-const FAIL = "Test Failed";
-const TEST_FILE = "Test_Content/testData.txt";
+const TEST_FILE = "TestContent/FM/testData.txt";
+const NOT_FOUND = "TestContent/FM/FalseFile.txt";
 
 // Load in our libraries. 
 var fileManager = require("./FileManager.js");
 var util = require("../Util/util.js");
 
-// Here we run the tests.
-this.runTests = function() {
-	util.logger(util.LOG_TO_CONSOLE, "Running FileManager tests.");
-	this.doTest(this.loadFileTestNoCache, "TestData\n", "loadFileTestNoCache");
-	this.doTest(this.loadFileTestCache, "TestData\n", "loadFileTestCache");
+/**
+ * Tests the file loading capability without saving to the cache.
+ * @param callback	A function to be run after the test has been executed.
+ */
+var loadFileTestNoCache = function(callback) {
+	fileManager.getFile(TEST_FILE, false, function(err, data) {
+		callback(data);
+	});
 }
 
 /**
- * Runs a test and checks the result against the expected result.
- * @param func		The test function to be run. The test must have a callback function with an
- 			error argument and a data argument.
- * @param expected 	The expected result.
- * @param message	The message to print to the console describing the test.
+ * Tests the file loading capability with saving to the cache.
+ * @param callback	A function to be runa fter the test has been executed.
  */
-this.doTest = function(func, expected, message) {
-	util.logger(util.LOG_TO_CONSOLE, message);
-	func(function(err, result) {
-		if (!err && expected == result) {
-			util.logger(util.LOG_TO_CONSOLE, PASS + ": " + message);
-		} else {
-			util.logger(util.LOG_TO_CONSOLE, FAIL + ": " + message);
-		}
-	});
-}
-
-this.loadFileTestNoCache = function(callback) {
-	fileManager.getFile(TEST_FILE, false, function(err, data) {
-		callback(err, data);
-	});
-}
-
-this.loadFileTestCache = function(callback) {
+var loadFileTestCache = function(callback) {
 	fileManager.getFile(TEST_FILE, true, function(err, data) {
 		var cacheContents = fileManager.getCacheContents();
-		callback(err, cacheContents);
+		callback(cacheContents);
 	});
 }
 
-this.runTests();
+/** 
+ * Tests the error handling capabilities of the file manager.
+ * @param callback	A functionto be runa fter the test has been executed.
+ */
+var fileNotFound = function(callback) {
+	fileManager.getFile(NOT_FOUND, false, function(err, data) {
+		callback(err.code);
+	});
+}
 
+/**
+ * A function to run various tests on a module.
+ * @param test		A function which runs a test - Must have 3 arguments: function, expected, message
+ */
+var runTests = function(test) {
+	util.logger(util.LOG_TO_CONSOLE, "Running FileManager tests.");
+	test(loadFileTestNoCache, "TestData\n", "loadFileTestNoCache");
+	test(loadFileTestCache, "testData.txt ", "loadFileTestCache");
+	test(fileNotFound, 'ENOENT', "fileNotFound");
+}
+
+exports.runTests = runTests;

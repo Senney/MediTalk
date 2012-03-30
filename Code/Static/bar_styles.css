@@ -2,7 +2,7 @@ div#barMain {
 	position: fixed;
 	border: 1px solid;
 	background-color: #E6E6E6;
-	width: 60%;
+	width: 800px;
 	height: 50px;
 	bottom: 3%;	
 	left: 0; right: 0;
@@ -13,14 +13,10 @@ div.navSplitter {
 	float: left;
 	width: 33%;
 	height: 100%;
-}
-
-div.itemContainer {
 	position: relative;
-	height: 100%;
 }
 
-a.navMenu {
+div#navMenu {
 	text-decoration: none;
 	color: black;
 	position: absolute;
@@ -28,9 +24,36 @@ a.navMenu {
 	left: 0; right: 0; margin: auto;
 	background-color: #F3F3F3;
 	height: 20px;
+	width: 88%;
 	bottom: 0px; top: 0px;
 	padding: 8px;
 	text-align: center;
 	font-weight: bold;
 	cursor: default;
+	overflow: hidden;
+}
+
+ul#navList {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+div#navMenu a {
+	text-decoration: none;
+	color: #3c578f;	
+}
+
+div#searchContainer {
+	position: absolute;
+	background: url('images/searchbar.png');
+	height: 24px; width: 260px;
+	top: 25%;
+}
+
+input#searchBar {
+	margin-top: 4px;
+	margin-left: 26px;
+	border: 0;
+	width: 226px;
 }

@@ -9,7 +9,8 @@ if(!serverPort)
 	serverPort = DEFAULT_PORT
 	
 var util = require('../Util/util.js');
-var express = require('express')
+var cb = require('../FileManagement/ContentBuilder.js');
+var express = require('express');
 
 var server = express.createServer();
 
@@ -23,6 +24,50 @@ const INVALID_FILE_EXTENSION = 415;
 const FILE_EXISTS = 409;
 const FILE_IO_ERROR = 500;
 const READ_ERROR = 408;
+
+/**********************************************
+ * 	User Security Objects and Functions
+ **********************************************/
+//Session object to track if a user is logged in or not
+function userSession(userId, sessionId, auth){
+	this.userId = userId;
+	this.sessionId = sessionId;
+	this.auth = auth;
+}
+
+//Table of session objects
+var userSessionTable = {};
+
+//Default functions that will be called for all requests
+var common = [authUser];
+
+/**
+ * authUser(req,res, next)
+ * Checks the userSessionTable for the session Id from the request to check if that
+ * session Id has been authenticated
+ * @param req  Http request
+ * @param res  Response object
+ * @param next Tells the server to move on to the next function for the request
+ */
+function authUser(req, res, next){
+	
+	//Get session ID
+	var sessId = req.cookies['connect.sid'];	
+	
+	//Check that session ID has been authenticated 
+	if(userSessionTable[sessId] == undefined){
+		//Redirect to login page
+		res.send('You should be logged in');
+	}
+	else if(userSessionTable[sessId].auth == 'false'){				
+		//Redirect to login page
+		res.send('You should be logged in');		
+	}
+	else{
+		//Continue with normal routing
+		next();
+	}	
+}
 
 
 /**
@@ -133,8 +178,30 @@ function adminAction(request, response)
 }
 
 function login(request, response)
-{
-	response.send('doing login stuff') //stub
+{	
+	//Get user pass from request somehow
+	//TODO This needs to be built in from the content builder
+//	var userName = request.body.user.name;
+//  var userPass = request.body.user.pass;	
+	
+	//Check if pass is valid
+	//TODO compare the pass from the request body with the one in the database
+//	var passValid = checkPass() or something
+	
+	//if valid password, update userSessionTable to show user as authenticated
+	if(passValid){
+		//Store session Id in table for current user
+		var session = new userSession(userId, req.cookies['connect.sid'], auth);
+		userSessionTable[session.sessionId] = session;
+		util.logger(util.LOG_TO_CONSOLE, 'User: ' + userName + ' logged in at: ' + new Date());
+				
+		//Redirect user to home page.
+		res.send('This should point to the users home page');
+	}
+	else{
+		//Display message to user
+		next(new Error('Invalid Username/Password'));
+	}	
 }
 
 /**
@@ -165,19 +232,19 @@ server.error(errorHandler)
 //routing information that express uses in server.router, basically a bunch of regexp matching
 //with any :x captured and added to the request object as request.params.x
 
-server.get('/streams/:catid/:postid', viewPost)
-server.get('/streams/:catid', viewCategory)
-server.get('/streams/', categoryList)
-server.get('/', mainPage)
+server.get('/streams/:catid/:postid', common, viewPost)
+server.get('/streams/:catid', common, viewCategory)
+server.get('/streams/', common, categoryList)
+server.get('/', common, mainPage)
 
-server.get('/user', viewSettings)
-server.post('/user', changeSettings)
+server.get('/user', common, viewSettings)
+server.post('/user', common, changeSettings)
 
-server.post('/streams/:catid/:postid', makeComment)
-server.post('/streams/:catid', makePost)
+server.post('/streams/:catid/:postid', common, makeComment)
+server.post('/streams/:catid', common, makePost)
 
-server.get('/admin', adminPage)
-server.post('/admin', adminAction)
+server.get('/admin', common, adminPage)
+server.post('/admin', common, adminAction)
 
 server.get('/login', loginPage)
 server.post('/login', login)

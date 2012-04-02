@@ -1,0 +1,27 @@
+body {
+	font-family: helvetica;
+}
+
+img.header {
+	display: block;
+	margin-left: auto; 
+	margin-right: auto;
+}
+
+div.midDiv {
+	border: 1px solid;
+	
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
+	padding: 10px 20px 10px 20px;
+	
+	width: 760px;
+	background: #E6E6E6;
+}
+
+div#contentContainer {
+	padding: 0;
+	bottom: 3%;
+	overflow: hidden;
+}

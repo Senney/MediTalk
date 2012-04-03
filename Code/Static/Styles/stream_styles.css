@@ -1,0 +1,43 @@
+div.streamDiv {
+	border: 1px solid;
+	
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10px;
+		
+	background: #97c5d2;
+	width: 800px;
+	height: 100%;	
+}
+
+p#streamDivTitle {
+	margin: 0px;
+	font-size: 16pt;
+	padding: 10px;
+}
+
+div.streamPostContainer {
+	margin: 10px;
+	padding: 5px;
+	background: #8cbbc8;
+	height: 100%;
+}
+
+div.streamPost {
+	margin-bottom: 3px;
+	margin-top: 3px;
+	border: 1px solid;
+	height: 140px;
+}
+
+p.streamPostTitle {
+	width: 50%;
+	margin: 3px;
+	font-size: 14pt;
+	color: darkblue;
+}
+
+p.postElement {
+	float: left;
+	margin: 0;
+}

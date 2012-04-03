@@ -1,0 +1,16 @@
+p#newPostHead {
+	border-bottom: 1px solid;
+	font-size: 20px;
+}
+
+p.noBottomMargin {
+	margin-bottom: 0px;
+}
+
+input {
+	border: 1px solid;
+}
+
+input#submitPost {
+	float: right;
+}

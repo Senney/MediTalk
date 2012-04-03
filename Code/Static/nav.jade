@@ -1,0 +1,18 @@
+link(rel = 'stylesheet', href = 'Styles/bar_styles.css')
+script(src = 'barcontrol.js')
+div#barMain
+	div.navSplitter
+		div#navMenu
+			p#navTitle Navigation
+			br
+			ul#navList
+				if (sections.length)
+					- each sec in sections
+						li: a(href='streams/#{sec.name}') #{sec.name}
+				else
+					li No Sections Added
+	div.navSplitter
+		div#searchContainer
+			input(name='search[query]', id = 'searchBar')
+	div.navSplitter
+		p #{user}

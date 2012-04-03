@@ -1,0 +1,10 @@
+extends layout
+
+block header
+	img(src='images/headerimage.png', class = 'header')
+	
+	div.midDiv
+		include motd.txt
+
+block content
+	include stream

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel = "stylesheet" href = "Styles/mainstyles.css" />
+		<link rel = "stylesheet" href = "Styles/newpost.css" />
+	</head>
+	
+	<body>
+		<p id = "newPostHead">New Post</p>
+		<p id = "newPostTitle" class = "noBottomMargin">Title</p>
+		<form id = "postForm" action = "streams/" method = "post">
+			<input type = "text" name = "post_title" id = "title" size = "93" maxlength = "255" />
+			<p id = "newPostBodyText" class = "noBottomMargin">Post Body</p>
+			<textarea rows = "25" cols = "92"></textarea>
+			<input type = "submit" value = "Preview Post" id = "previewPost"/>
+			<input type = "submit" value = "Submit Post" id = "submitPost"/>
+		</form>
+	</body>
+</html>

@@ -104,6 +104,17 @@ var delSection = function(id) {
 }
 
 /*
+ * Gets the titles of all sections.
+ * @param callback	Callback function that takes an object containing all information about the section as input.
+ */
+var getAllSections = function(callback) {
+	db.all("SELECT name FROM Sections", function(err, rows) {
+		if (err) throw err;
+		callback(rows);
+	});
+}
+
+/*
  * Gets information about a section and passes it into a callback.
  * @param id 		ID of the section
  * @param callback	Callback function that takes an object containing all information about the section as input.
@@ -184,6 +195,7 @@ exports.checkUser = checkUser;
 exports.newSection = newSection;
 exports.getSection = getSection;
 exports.getSectionN = getSectionN;
+exports.getAllSections = getAllSections;
 exports.delSection = delSection;
 exports.getSectionPosts = getSectionPosts;
 exports.getChildComments = getChildComments;

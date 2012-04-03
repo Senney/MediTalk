@@ -1,0 +1,25 @@
+body {
+	font-family: helvetica;
+	margin-left: auto; 
+	margin-right: auto;
+	width: 800px;
+}
+
+img.header {
+	display: block;
+}
+
+div.midDiv {
+	border: 1px solid;
+
+	margin-top: 10px;
+	padding: 10px 5px 10px 5px;
+	
+	background: #E6E6E6;
+}
+
+div#contentContainer {
+	padding: 0;
+	bottom: 3%;
+	overflow: hidden;
+}

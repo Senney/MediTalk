@@ -9,6 +9,7 @@ var postTest = function() {
 	var post1 = {title: "post1", author: 1, type: 0, content: "1", secid: 1};
 	var post2 = {title: "post2", author: 1, type: 0, content: "2", secid: 0};
 	var post3 = {title: "post3", author: 1, type: 0, content: "3", secid: 1};
+	console.log("POSTS: " + post1.title + " " + post2.title + " " + post3.title);
 
 	dbw.newPost(post1.type, post1.title, post1.content, post1.author, post1.secid);
 	dbw.newPost(post2.type, post2.title, post2.content, post2.author, post2.secid);
@@ -31,8 +32,8 @@ var userTest = function() {
 	var user1 = {username: "user1", password: "123", email: "hey@there.you", firstName: "T", lastName: "G"};
 	
 	dbw.newUser(user1.username, user1.password, user1.email, user1.firstName, user1.lastName);
-	dbw.checkUser(user1.username, user1.password, function(p1, p2) {
-		if(p1 == p2) console.log("checkUser: SUCCESS");
+	dbw.checkUser(user1.username, user1.password, function(check) {
+		if(check) console.log("checkUser: SUCCESS");
 		else console.log("checkUser: FAILURE");
 	});
 	
@@ -56,6 +57,11 @@ var secTest = function() {
 		else if(row.parent == sec1.parent && row.name == sec1.name && row.description == sec1.description) console.log("getSection: SUCCESS");
 		else console.log("getSection: FAILURE");
 	});
+	dbw.getSectionN("sec1", function(row) {
+		if(row === undefined) console.log("getSectionN: FAILURE");
+		else if(row.parent == sec1.parent && row.description == sec1.description) console.log("getSectionN: SUCCESS");
+		else console.log("getSectionN: FAILURE");
+	});
 	var titles = 'Posts in sec1:';
 	dbw.getSectionPosts(1, function(rows) {
 		for(r in rows) {
@@ -65,10 +71,37 @@ var secTest = function() {
 	});
 }
 
+var commTest = function() {
+	var com1 = { post: 1, parent: 0, content: "com1", author: "me" };
+	var com2 = { post: 1, parent: 1, content: "com2", author: "me" };
+	var com3 = { post: 1, parent: 0, content: "com3", author: "you" };
+	var com4 = { post: 2, parent: 0, content: "com4", author: "you" };
+	
+	console.log("COMMENTS: " + com1.content + " " + com2.content + " " + com3.content + " " + com4.content);
+	
+	dbw.newComment(com1.post, com1.parent, com1.content, com1.author);
+	dbw.newComment(com2.post, com2.parent, com2.content, com2.author);
+	dbw.newComment(com3.post, com3.parent, com3.content, com3.author);
+	dbw.newComment(com4.post, com4.parent, com4.content, com4.author);
+	
+	dbw.getComments(1, function(rows) {
+		var s = "";
+		for(r in rows) s = s + " " + rows[r].content;
+		console.log("Comments in post1: " + s);
+	});
+	
+	dbw.getChildComments(1, function(rows) {
+		var s = "";
+		for(r in rows) s = s + rows[r].content;
+		console.log("Children of comment1: " + s);
+	});
+}
+
 this.runTests = function() {
 	postTest();
 	userTest();
 	secTest();
+	commTest();
 }
 
 this.runTests();

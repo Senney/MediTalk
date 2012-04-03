@@ -9,14 +9,13 @@ db.serialize();
 // id | username | password | email | lastSession | firstName | lastName
 db.run("CREATE TABLE IF NOT EXISTS Users ( id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT, lastSession datetime, firstName TEXT, lastName TEXT)");
 // id | parent | secID | name | description | postCount | watchers
-db.run("CREATE TABLE IF NOT EXISTS Sections ( id int PRIMARY KEY, parent int, name TEXT, description TEXT, postCount int, watchers TEXT)");
+db.run("CREATE TABLE IF NOT EXISTS Sections ( id INTEGER PRIMARY KEY, parent INTEGER, name TEXT, description TEXT, postCount INTEGER, watchers TEXT)");
 // id | type | title | content | author | secid | postTime | votes | comments | watchers
 db.run("CREATE TABLE IF NOT EXISTS Posts ( id INTEGER PRIMARY KEY, type INTEGER, title TEXT, content varchar(1000), author INTEGER, secID INTEGER, postTime datetime, votes INTEGER, comments INTEGER, watchers TEXT)");
 // id | post | parent | content | author | postTime | votes
-db.run("CREATE TABLE IF NOT EXISTS Comments ( id int PRIMARY KEY, post int, parent int, content TEXT, author int, postTime datetime, votes int)");
+db.run("CREATE TABLE IF NOT EXISTS Comments ( id INTEGER PRIMARY KEY, post INTEGER, parent INTEGER, content TEXT, author INTEGER, postTime datetime, votes INTEGER)");
 // id | location | size | uploadTime | uploader
-db.run("CREATE TABLE IF NOT EXISTS Documents ( id int PRIMARY KEY, location TEXT, size int, uploadTime datetime, uploader int)");
-//db.parallelize();
+db.run("CREATE TABLE IF NOT EXISTS Documents ( id INTEGER PRIMARY KEY, location TEXT, size INTEGER, uploadTime datetime, uploader INTEGER)");
 
 /*
  * Inserts a new post in to the database based on the parameters passed in.
@@ -69,7 +68,7 @@ var delUser = function(id) {
 var checkUser = function(username, password, callback) {
 	db.get("SELECT password FROM Users WHERE username = ?", username, function(err, row) {
 		if(err) throw err;
-		callback(password, row.password);
+		callback(password  == row.password);
 	});
 }
 
@@ -117,6 +116,18 @@ var getSection = function(id, callback) {
 }
 
 /*
+ * Gets information about a section and passes it into a callback.
+ * @param name		Name of the section
+ * @param callback	Callback function that takes an object containing all information about the section as input.
+ */
+var getSectionN = function(name, callback) {
+	db.get("SELECT * FROM Sections WHERE name = ?", name, function(err, row) {
+		if(err) throw err;
+		callback(row);
+	});
+}
+
+/*
  * Gets all posts from a section and passes an array of them into the callback. Posts will be sorted by descending date (ie, newest first).
  * @param id 			The ID of the section to grab posts from.
  * @param callback		The callback function called with a single argument; the array of all posts in the specified section.
@@ -146,7 +157,19 @@ var newComment = function(post, parent, content, author) {
  * @param callback		Callback that takes an array of comments as input.
  */
 var getComments = function(post, callback) {
-	db.all("SELECT * FROM Comments WHERE id = ?", post, function(err, rows) {
+	db.all("SELECT * FROM Comments WHERE post = ?", post, function(err, rows) {
+		if(err) throw err;
+		callback(rows);
+	});
+}
+
+/*
+ * Gets all the child comments of some comment and passes them into a callback.
+ * @param parent		The ID of the parent comment
+ * @param callback		Callback that takes an array of comments as input.
+ */
+var getChildComments = function(parent, callback) {
+	db.all("SELECT * FROM Comments WHERE parent = ?", parent, function(err, rows) {
 		if(err) throw err;
 		callback(rows);
 	});
@@ -160,7 +183,9 @@ exports.getUser = getUser;
 exports.checkUser = checkUser;
 exports.newSection = newSection;
 exports.getSection = getSection;
+exports.getSectionN = getSectionN;
 exports.delSection = delSection;
 exports.getSectionPosts = getSectionPosts;
+exports.getChildComments = getChildComments;
 exports.newComment = newComment;
 exports.getComments = getComments;

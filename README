@@ -1,6 +1,8 @@
 Packages used:
 	nodemailer <https://github.com/andris9/Nodemailer>
 	sqlite3 <https://github.com/developmentseed/node-sqlite3>
+	express <http://expressjs.com/>
+	jade <http://jade-lang.com/>
 	
 Authors:
 	Sean Heintz

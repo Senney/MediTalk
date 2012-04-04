@@ -35,11 +35,10 @@ p.streamPostTitle {
 	margin: 3px;
 	font-size: 14pt;
 	color: darkblue;
-	border-bottom: 1px solid black;
-	border-right: 1px solid black;
 }
 
-p.postElement {
-	float: left;
-	margin: 0;
+p.streamPostInfo {
+	font-size: 12px;
+	margin-top: 0px;
+	padding-left: 10px;
 }

@@ -37,7 +37,8 @@ p.streamPostTitle {
 	color: darkblue;
 }
 
-p.postElement {
-	float: left;
-	margin: 0;
+p.streamPostInfo {
+	font-size: 12px;
+	margin: 0px;
+	padding-left: 10px;
 }

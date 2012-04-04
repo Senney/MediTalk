@@ -1,5 +1,4 @@
-link(rel = 'stylesheet', href = 'Styles/bar_styles.css')
-script(src = 'barcontrol.js')
+script(src = '/barcontrol.js')
 div#barMain
 	div.navSplitter
 		div#navMenu
@@ -8,11 +7,13 @@ div#barMain
 			ul#navList
 				if (sections.length)
 					- each sec in sections
-						li: a(href='streams/#{sec.name}') #{sec.name}
+						li: a(href='/streams/#{sec.name}') #{sec.name}
 				else
 					li No Sections Added
+					
+				li: a(href='/') Home
 	div.navSplitter
 		div#searchContainer
 			input(name='search[query]', id = 'searchBar')
 	div.navSplitter
-		p #{user}
+		p #{session.uname}

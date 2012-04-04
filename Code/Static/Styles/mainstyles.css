@@ -23,3 +23,7 @@ div#contentContainer {
 	bottom: 3%;
 	overflow: hidden;
 }
+
+a {
+	text-decoration: none;
+}

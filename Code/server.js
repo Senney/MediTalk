@@ -92,13 +92,16 @@ function logRequest(request, response, next)
 
 function mainPage(request, response)
 {
+	var section = "Memos";
+	var id = 1;
+
 	//response.send('main')	//stub
 	db.getAllSections(function(rows) {
 		response.render('index.jade', {
 			locals: {
 				pageTitle: 'MediTalk',
-				posts: [{title: 'Memo!'}, {title: 'Derp Face'}, {title: 'This is test Data'}],
-				user: 'Test User',
+				posts: [{title: 'Memo!', url: '/streams/' + section + '/' + id, section: section, author: 'Sean'}],
+				session: session,
 				sections: rows,
 				}	
 		});
@@ -124,10 +127,7 @@ function categoryList(request, response)
 function viewCategory(request, response)
 {
 	//stub
-	if(request.params.catid > 0)
-		response.send("category: " +  request.params.catid)
-	else
-		throw new Error(URL_NOT_FOUND)
+	response.send("category: " +  request.params.catid)
 }
 
 /**
@@ -138,11 +138,18 @@ function viewCategory(request, response)
 
 function viewPost(request, response)
 {
-	//stub
-	if(request.params.postid > 0)
-		response.send("category: " +  request.params.catid + " post: " + request.params.postid)
-	else
-		throw new Error(URL_NOT_FOUND)	
+	db.getAllSections(function(rows) {
+		response.render("viewpost.jade", { 
+			locals: {
+				pageTitle: 'Viewing Post',
+				session: session,
+				sections: rows,
+				post: {title: "Test Post", author: "Test Author", time: new Date().toDateString(),
+					content: "This is some test content."},
+				}
+	
+		});
+	});
 }
 
 /**

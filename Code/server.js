@@ -34,6 +34,7 @@ function userSession(userId, sessionId, auth, uname){
 	this.sessionId = sessionId;
 	this.auth = auth;
 	this.uname = uname;
+	return this;
 }
 
 //Table of session objects
@@ -94,6 +95,8 @@ function mainPage(request, response)
 {
 	var section = "Memos";
 	var id = 1;
+	var session = userSession(1, 1, 1, "Senney");
+	console.log(session);
 
 	//response.send('main')	//stub
 	db.getAllSections(function(rows) {
@@ -138,6 +141,8 @@ function viewCategory(request, response)
 
 function viewPost(request, response)
 {
+	var session = userSession(1, 1, 1, "Senney");
+	
 	db.getAllSections(function(rows) {
 		response.render("viewpost.jade", { 
 			locals: {

@@ -30,6 +30,7 @@ var postTest = function() {
 
 var userTest = function() {
 	var user1 = {username: "user1", password: "123", email: "hey@there.you", firstName: "T", lastName: "G"};
+	var user2 = {username: "user1", password: "123", email: "hey@there.you", firstName: "T", lastName: "G"};
 	
 	dbw.newUser(user1.username, user1.password, user1.email, user1.firstName, user1.lastName);
 	dbw.checkUser(user1.username, user1.password, function(check) {
@@ -38,6 +39,7 @@ var userTest = function() {
 	});
 	
 	dbw.getUser("user1", function(row) {
+		console.log(row.lastSession);
 		if(row.username == user1.username && row.email == user1.email && row.firstName == user1.firstName && row.lastName == user1.lastName) console.log("getUser: SUCCESS");
 		else console.log("getUser: FAILURE");
 	});
@@ -45,6 +47,10 @@ var userTest = function() {
 	dbw.getUser(1, function(row) {
 		if(row === undefined) console.log("delUser: SUCCESS");
 		else console.log("delUser: FAILURE");
+	});
+	dbw.getUser(2, function(row) {
+		if(row === undefined) console.log("Add same username: SUCCESS");
+		else console.log("Add same username: FAILURE");
 	});
 }
 
@@ -62,12 +68,19 @@ var secTest = function() {
 		else if(row.parent == sec1.parent && row.description == sec1.description) console.log("getSectionN: SUCCESS");
 		else console.log("getSectionN: FAILURE");
 	});
-	var titles = 'Posts in sec1:';
 	dbw.getSectionPosts(1, function(rows) {
+		var titles = 'Posts in sec1:';
 		for(r in rows) {
 			titles = titles + ' ' + rows[r].title;
 		}
 		console.log(titles);
+	});
+	dbw.getRecentPosts("all", 2, function(rows) {
+		var title = 'Recent posts:';
+		for(r in rows) {
+			title = title + ' ' + rows[r].title;
+		}
+		console.log(title);
 	});
 }
 

@@ -3,24 +3,24 @@
  * @author Brent Glowinski
  */
 
-var sqlite = require("./node_modules/sqlite3/sqlite3");
+var sqlite = require("../node_modules/sqlite3/sqlite3");
 var db = new sqlite.Database("MediTalk.db");
 db.serialize();
 // --- USER TABLE ---
 // id | username | password | email | lastSession | firstName | lastName | flags
-db.run("CREATE TABLE IF NOT EXISTS Users ( id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT, lastSession datetime, firstName TEXT, lastName TEXT, flags INTEGER)");
+db.run("CREATE TABLE IF NOT EXISTS Users ( id INTEGER PRIMARY KEY, username TINYTEXT, password TEXT, email TINYTEXT, lastSession DATETIME, firstName TINYTEXT, lastName TINYTEXT, flags INTEGER)");
 // --- SECTIONS TABLE ---
 // id | parent | secID | name | description | postCount | watchers
-db.run("CREATE TABLE IF NOT EXISTS Sections ( id INTEGER PRIMARY KEY, parent INTEGER, name TEXT, description TEXT, postCount INTEGER, watchers TEXT)");
+db.run("CREATE TABLE IF NOT EXISTS Sections ( id INTEGER PRIMARY KEY, parent INTEGER, name TINYTEXT, description TINYTEXT, postCount INTEGER, watchers TEXT)");
 /// --- POSTS TABLE ---
 // id | type | title | content | author | secid | postTime | votes | comments | watchers
-db.run("CREATE TABLE IF NOT EXISTS Posts ( id INTEGER PRIMARY KEY, type INTEGER, title TEXT, content varchar(1000), author INTEGER, secID INTEGER, postTime datetime, votes INTEGER, comments INTEGER, watchers TEXT)");
+db.run("CREATE TABLE IF NOT EXISTS Posts ( id INTEGER PRIMARY KEY, type INTEGER, title TINYTEXT, content varchar(1000), author INTEGER, secID INTEGER, postTime DATETIME, votes INTEGER, comments INTEGER, watchers TEXT)");
 // --- COMMENTS TABLE ---
 // id | post | parent | content | author | postTime | votes
-db.run("CREATE TABLE IF NOT EXISTS Comments ( id INTEGER PRIMARY KEY, post INTEGER, parent INTEGER, content TEXT, author INTEGER, postTime datetime, votes INTEGER)");
+db.run("CREATE TABLE IF NOT EXISTS Comments ( id INTEGER PRIMARY KEY, post INTEGER, parent INTEGER, content TEXT, author INTEGER, postTime DATETIME, votes INTEGER)");
 // --- DOCUMENTS ---
 // id | location | size | uploadTime | uploader
-db.run("CREATE TABLE IF NOT EXISTS Documents ( id INTEGER PRIMARY KEY, location TEXT, size INTEGER, uploadTime datetime, uploader INTEGER)");
+db.run("CREATE TABLE IF NOT EXISTS Documents ( id INTEGER PRIMARY KEY, location TEXT, size INTEGER, uploadTime DATETIME, uploader INTEGER)");
 
 /*
  * Inserts a new post in to the database based on the parameters passed in.
@@ -56,27 +56,58 @@ var getPost = function(id, callback) {
  * @param lastName		Last name of the user
  */
 var newUser = function(username, password, email, firstName, lastName, flags) {
-	db.run("INSERT INTO Users (username, password, email, firstName, lastName, flags) VALUES ($user, $pass, $email, $first, $last, $flags)", 
-		   { $user: username, $pass: password, $email: email, $first: firstName, $last: lastName, $flags: flags });
+	db.get("SELECT * from Users WHERE username = ?", username, function(err, row) {
+		if(err) throw err;
+		else if (row === undefined) { 
+			db.run("INSERT INTO Users (username, password, email, firstName, lastName, lastSession, flags) VALUES ($user, $pass, $email, $first, $last, CURRENT_TIMESTAMP, $flags)", 
+		   		{ $user: username, $pass: password, $email: email, $first: firstName, $last: lastName, $flags: flags });
+		}
+	});
 }
 
+/*
+ * Deletes a user from the database by id.
+ * @param id 			ID of the user to be deleted.
+ */
 var delUser = function(id) {
 	db.run("DELETE FROM Users WHERE id = ?", id);
 }
 
 /*
- * Gets the user's password out of the database, then passes the user's password as well as a provided password to a callback.
+ * Deletes a user from the database by username.
+ * @param user 			Username of the user to be deleted.
+ */
+var delUserN = function(user) {
+	db.run("DELETE FROM Users WHERE username = ?", user);
+}
+
+/*
+ * Gets the user's password out of the database, then checks it against the provided password and passes the resulting boolean into a callback.
  * @param username		The username that the function is checking the password for
  * @param password		Password to be forwarded into the callback
  * @param callback		Function to handle data that has been checked in the database.
  				Arguments for callback - auth : boolean
  							 userId : int
  							 userFlag : int
+ * @param password		Password to be checked
+ * @param callback		Function that takes a boolean as input. True if passwords the same, false otherwise.
  */
 var verifyUser = function(username, password, callback) {
 	db.get("SELECT id, password, flags FROM Users WHERE username = ?", username, function(err, row) {
 		if(err) throw err;
 		callback(password  == row.password, row.id, row.flags);
+	});
+}
+
+/*
+ * Checks whether a user is in the database.
+ * @param username		Username of user to be checked
+ * @param callback		Callback that takes a boolean as input. True if user exists, false otherwise.
+ */
+var doesUserExist = function(username, callback) {
+	db.get("SELECT * from Users WHERE username = ?", username, function(err, row) {
+		if(err) throw err;
+		else callback(!(row === undefined));
 	});
 }
 
@@ -112,6 +143,18 @@ var getAllUsers = function(callback) {
 var newSection = function(parent, name, description) {
 	db.run("INSERT INTO Sections (parent, name, description, postCount, watchers) VALUES ($parent, $name, $desc, 0, '')",
 		   { $parent: parent, $name: name, $desc: description });
+}
+
+/*
+ * Checks whether a section is in the database.
+ * @param name			Name of the section to be checked
+ * @param callback		Callback that takes a boolean as input. True if section exists, false otherwise.
+ */
+var doesSectionExist = function(name, callback) {
+	db.get("SELECT * from Sections WHERE name = ?", name, function(err, row) {
+		if(err) throw err;
+		else callback(!(row === undefined));
+	});
 }
 
 /*
@@ -170,6 +213,29 @@ var getSectionPosts = function(id, callback) {
 }
 
 /*
+ * Gets some number of the most recent posts from a section.
+ * @param section		Name of the section we are looking at ("all" looks at all sections)
+ * @param numPosts		Number of posts to grab.
+ * @param callback		Function that takes the array of recent posts as input.
+ */
+var getRecentPosts = function(section, numPosts, callback) {
+	if(section === "all") {
+		db.all("SELECT * FROM Posts ORDER BY id DESC LIMIT ?", numPosts, function(err, rows) {
+			if(err) throw err;
+			callback(rows);
+		});
+	} else {
+		getSectionN(section, function(row) {
+			id = row.id;
+			db.all("SELECT * FROM Posts WHERE secID = ? ORDER BY id DESC LIMIT ?", id, numPosts, function(err, rows) {
+				if(err) throw err;
+				callback(rows);
+			});
+		});
+	}
+}
+ 
+/*
  * Inserts a new comment into the database.
  * @param post			The ID of the post this comment is attached to.
  * @param parent		The ID of the parent comment for this post. 0 if there is no parent.
@@ -208,16 +274,20 @@ var getChildComments = function(parent, callback) {
 exports.newPost = newPost;
 exports.getPost = getPost;
 exports.newUser = newUser;
+exports.doesUserExist = doesUserExist;
 exports.delUser = delUser;
+exports.delUserN = delUserN;
 exports.getUser = getUser;
 exports.getAllUsers = getAllUsers;
 exports.verifyUser = verifyUser;
 exports.newSection = newSection;
+exports.doesSectionExist = doesSectionExist;
 exports.getSection = getSection;
 exports.getSectionN = getSectionN;
 exports.getAllSections = getAllSections;
 exports.delSection = delSection;
 exports.getSectionPosts = getSectionPosts;
+exports.getRecentPosts = getRecentPosts;
 exports.getChildComments = getChildComments;
 exports.newComment = newComment;
 exports.getComments = getComments;

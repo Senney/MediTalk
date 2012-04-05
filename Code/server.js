@@ -2,7 +2,10 @@
  *  Main module for handling server operations
  */
 
-const DEFAULT_PORT = 10032
+const DEFAULT_PORT = 10032;
+const SESSION_EXPIRE_TIME = 3600000;   //How long sessions are kept in the table after last use (1 hour)
+const CLEAN_SESSION_INTERVAL = 3600000; //How often the server checks for expired sessions
+ 
  
 var serverPort = process.argv[2]
 if(!serverPort)
@@ -41,6 +44,7 @@ function userSession(userId, sessionId, auth, uname, flag){
 	this.auth = auth;
 	this.uname = uname;
 	this.type = flag;
+	this.lastSeen = new Date();
 	return this;
 }
 
@@ -69,7 +73,8 @@ function authUser(req, res, next){
 		res.redirect('/login');		
 	}
 	else{
-		//Continue with normal routing
+		//Update session lastSeen with now and continue with normal routing
+		userSessionTable[sessId].lastSeen = new Date();
 		next();
 	}	
 }
@@ -83,6 +88,25 @@ function getSession(request) {
 	return userSessionTable[request.cookies['connect.sid']];
 }
 
+ /*
+ * Runs every hour to remove old sessions from the user session table
+ */
+setInterval(cleanSessionTable, CLEAN_SESSION_INTERVAL);
+
+/**
+ * Removes sessions from the session table that are older than the set maximum.  
+ * This function should be called by a timer process in Node, registered with setInterval()
+ */
+function cleanSessionTable(){
+	var now = new Date();
+	for(session in userSessionTable){
+		var lastSeen = userSessionTable[session].lastSeen;
+		var timeDiff = now - lastSeen;
+		if(timeDiff > SESSION_EXPIRE_TIME){
+			delete userSessionTable[session]; 
+		}
+	}
+}
 
 /**
 	Logs request information to console.
@@ -180,7 +204,15 @@ function viewNewPost(request, response) {
 	
 function loginPage(request, response)
 {
-	response.render('login.jade');
+	//Check if user is already logged in
+	var sessId = request.cookies['connect.sid'];
+	if(userSessionTable[sessId] != undefined && userSessionTable[sessId].auth == 'true'){
+		res.redirect('/');
+	}
+	else{
+		response.render('login.jade');
+	}	
+	
 }	
 
 // ********The server functions from this point on are all login/session based and I haven't looked into how that works yet - Chris
@@ -252,7 +284,9 @@ function adminAction(request, response)
 
 function login(request, response)
 {	
-	//Get user pass from request somehow
+	
+	//TODO Check if user is already logged in.
+	
 	//TODO This needs to be built in from the content builder
 	var userName = request.body.user.name;
 	var userPass = request.body.user.pass;	
@@ -282,6 +316,24 @@ function login(request, response)
 		//Display message to user
 		next(new Error('Invalid Username/Password'));
 	}	
+}
+
+/**
+ * Removes the current user from the session table, thereby logging them out.
+ * @param request Http request object
+ * @param response Http response object
+ */
+function logout(request, response){
+	//Remove session Id from table
+	var session = request.cookies['connect.sid'];
+	if(userSessionTable[session] != undefined){
+		util.logger(util.LOG_TO_CONSOLE, 'User: ' + userSessionTable[session].userId + ' logged out at: ' + new Date());
+		delete userSessionTable[session];
+	}
+	else{
+		//Not sure if this should be a error since anyone can navigate to the /logout url even if they're not
+		//logged in.  Could change that though.  		
+	}
 }
 
 /**
@@ -331,6 +383,7 @@ server.post('/admin', common, adminAction);
 
 server.get('/login', loginPage);
 server.post('/login', login);
+server.get('/logout', logout);
 
 server.all('*', function() { throw new Error(URL_NOT_FOUND) } ); //catch-all for urls that fall through all the other matches
 

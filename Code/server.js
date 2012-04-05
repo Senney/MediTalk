@@ -189,7 +189,15 @@ function viewNewPost(request, response) {
 	
 function loginPage(request, response)
 {
-	response.render('login.jade');
+	//Check if user is already logged in
+	var sessId = request.cookies['connect.sid'];
+	if(userSessionTable[sessId] != undefined && userSessionTable[sessId].auth == 'true'){
+		res.redirect('/');
+	}
+	else{
+		response.render('login.jade');
+	}	
+	
 }	
 
 // ********The server functions from this point on are all login/session based and I haven't looked into how that works yet - Chris

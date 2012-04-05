@@ -18,6 +18,12 @@ p {
 	position: relative;
 }
 
+p#user {
+	float: left;
+	margin-right: 20px;
+	margin-left: 8px;
+}
+
 input, button {
 	border: 1px solid;
 }

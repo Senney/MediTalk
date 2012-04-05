@@ -55,9 +55,9 @@ var getPost = function(id, callback) {
  * @param firstName		First name of the user
  * @param lastName		Last name of the user
  */
-var newUser = function(username, password, email, firstName, lastName) {
-	db.run("INSERT INTO Users (username, password, email, firstName, lastName) VALUES ($user, $pass, $email, $first, $last)", 
-		   { $user: username, $pass: password, $email: email, $first: firstName, $last: lastName });
+var newUser = function(username, password, email, firstName, lastName, flags) {
+	db.run("INSERT INTO Users (username, password, email, firstName, lastName, flags) VALUES ($user, $pass, $email, $first, $last, $flags)", 
+		   { $user: username, $pass: password, $email: email, $first: firstName, $last: lastName, $flags: flags });
 }
 
 var delUser = function(id) {
@@ -86,6 +86,17 @@ var getUser = function(id, callback) {
 	db.get("SELECT username, email, lastSession, firstName, lastName FROM Users WHERE username = ?", id, function(err, row) {
 		if(err) throw err;
 		callback(row);
+	});
+}
+
+/*
+ * Gets information on all users and returns it to the callback.
+ * @param callback		Callback that takes the object containing all the data as input. Contents: username, email, lastSession, firstName, lastName
+ */
+var getAllUsers = function(callback) {
+	db.all("SELECT username, email, firstName, lastName FROM Users", function(err, rows) {
+		if(err) throw err;
+		callback(rows);
 	});
 }
 
@@ -196,6 +207,7 @@ exports.getPost = getPost;
 exports.newUser = newUser;
 exports.delUser = delUser;
 exports.getUser = getUser;
+exports.getAllUsers = getAllUsers;
 exports.checkUser = checkUser;
 exports.newSection = newSection;
 exports.getSection = getSection;

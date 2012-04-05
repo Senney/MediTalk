@@ -16,4 +16,6 @@ div#barMain
 		div#searchContainer
 			input(name='search[query]', id = 'searchBar')
 	div.navSplitter
-		p #{session.uname}
+		p#uname #{session.uname}
+		a(href='/user/')
+			img#gear(src='/images/gear_small.png')

@@ -61,3 +61,15 @@ input#searchBar {
 	border: 0;
 	width: 226px;
 }
+
+p#uname {
+	text-align: center;
+	font-weight: bold;
+	width: 100%;
+}
+
+img#gear {
+	position: absolute;
+	top: 15%;
+	right: 10%;
+}

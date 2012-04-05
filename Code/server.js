@@ -25,15 +25,22 @@ const FILE_EXISTS = 409;
 const FILE_IO_ERROR = 500;
 const READ_ERROR = 408;
 
+// admin function constants.
+const ADMIN_FLAG = 1;
+const ADMIN_ADD_USER = 0;
+const ADMIN_ADD_SECTION = 1;
+const ADMIN_DEL_USER = 2;
+
 /**********************************************
  * 	User Security Objects and Functions
  **********************************************/
 //Session object to track if a user is logged in or not
-function userSession(userId, sessionId, auth, uname){
+function userSession(userId, sessionId, auth, uname, flag){
 	this.userId = userId;
 	this.sessionId = sessionId;
 	this.auth = auth;
 	this.uname = uname;
+	this.type = flag;
 	return this;
 }
 
@@ -67,6 +74,15 @@ function authUser(req, res, next){
 	}	
 }
 
+/**
+ * Returns the session of the users request.
+ * @param request	The incoming http request.
+ * @returns The session of the user.
+ */
+function getSession(request) {
+	return userSessionTable[request.cookies['connect.sid']];
+}
+
 
 /**
 	Logs request information to console.
@@ -91,8 +107,7 @@ function mainPage(request, response)
 {
 	var section = "Memos";
 	var id = 1;
-	var session = userSession(1, 1, 1, "Senney");
-	console.log(session);
+	var session = getSession(request);
 
 	//response.send('main')	//stub
 	db.getAllSections(function(rows) {
@@ -137,13 +152,13 @@ function viewCategory(request, response)
 
 function viewPost(request, response)
 {
-	var session = userSession(1, 1, 1, "Senney");
+	var session = getSession(request);
 	
 	db.getAllSections(function(rows) {
 		response.render("viewpost.jade", { 
 			locals: {
 				pageTitle: 'Viewing Post',
-				session: session,
+				session: getSession(request),
 				sections: rows,
 				post: {title: "Test Post", author: "Test Author", time: new Date().toDateString(),
 					content: "This is some test content."},
@@ -192,23 +207,47 @@ function makeComment(request, response)
 
 function adminPage(request, response)
 {
-	var session = userSession(1, 1, 1, "Senney");
+	var session = getSession(request);
 	
-	db.getAllSections(function(rows) {
-		response.render("admin.jade", { 
-			locals: {
-				pageTitle: 'Administration',
-				session: session,
-				sections: rows,
-				}
+	if (getSession(request).type != ADMIN_FLAG) {
+		response.redirect('/404', 404);
+		return;
+	}
 	
+	db.getAllSections(function(sections) {
+		db.getAllUsers(function(users) {
+			response.render("admin.jade", { 
+				locals: {
+					pageTitle: 'Administration',
+					session: getSession(request),
+					sections: sections,
+					users: users
+					}
+			});
 		});
 	});
 }
 
 function adminAction(request, response)
 {
-	response.send('doing admin stuff') //stub
+	if (getSession(request).type != ADMIN_FLAG) {
+		response.redirect('/404', 404);
+		return;
+	}
+
+	var type = request.body.type;
+	if (type == ADMIN_ADD_USER) {
+			var username = request.body.user.name;
+			var password = request.body.user.password;
+			var email = request.body.user.email;
+			var firstName = request.body.user.first;
+			var lastName = request.body.user.last;
+			var flags = request.body.user.flags;
+			console.log("Running query.");
+			db.newUser(username, password, email, firstName, lastName, flags);
+	}
+
+	response.redirect("/admin", 301);
 }
 
 function login(request, response)
@@ -232,7 +271,7 @@ function login(request, response)
 	//if valid password, update userSessionTable to show user as authenticated
 	if(passValid){
 		//Store session Id in table for current user
-		var session = new userSession(userId, request.cookies['connect.sid'], true);
+		var session = new userSession(userId, request.cookies['connect.sid'], true, userName, 1);
 		userSessionTable[session.sessionId] = session;
 		util.logger(util.LOG_TO_CONSOLE, 'User: ' + userName + ' logged in at: ' + new Date());
 				

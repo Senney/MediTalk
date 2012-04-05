@@ -68,12 +68,15 @@ var delUser = function(id) {
  * Gets the user's password out of the database, then passes the user's password as well as a provided password to a callback.
  * @param username		The username that the function is checking the password for
  * @param password		Password to be forwarded into the callback
- * @param callback		Function that handles the provided password and the one in the database. Takes two arguments: the provided password, and the password in the database.
+ * @param callback		Function to handle data that has been checked in the database.
+ 				Arguments for callback - auth : boolean
+ 							 userId : int
+ 							 userFlag : int
  */
-var checkUser = function(username, password, callback) {
-	db.get("SELECT password FROM Users WHERE username = ?", username, function(err, row) {
+var verifyUser = function(username, password, callback) {
+	db.get("SELECT id, password, flags FROM Users WHERE username = ?", username, function(err, row) {
 		if(err) throw err;
-		callback(password  == row.password);
+		callback(password  == row.password, row.id, row.flags);
 	});
 }
 
@@ -208,7 +211,7 @@ exports.newUser = newUser;
 exports.delUser = delUser;
 exports.getUser = getUser;
 exports.getAllUsers = getAllUsers;
-exports.checkUser = checkUser;
+exports.verifyUser = verifyUser;
 exports.newSection = newSection;
 exports.getSection = getSection;
 exports.getSectionN = getSectionN;

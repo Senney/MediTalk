@@ -192,10 +192,6 @@ function viewPost(request, response)
 	});
 }
 
-function viewNewPost(request, response) {
-		
-}
-
 /**
 	Sends the login page in the response body.
 	@param request an http request object
@@ -269,14 +265,19 @@ function adminAction(request, response)
 
 	var type = request.body.type;
 	if (type == ADMIN_ADD_USER) {
-			var username = request.body.user.name;
-			var password = request.body.user.password;
-			var email = request.body.user.email;
-			var firstName = request.body.user.first;
-			var lastName = request.body.user.last;
-			var flags = request.body.user.flags;
-			console.log("Running query.");
-			db.newUser(username, password, email, firstName, lastName, flags);
+		var username = request.body.user.name;
+		var password = request.body.user.password;
+		var email = request.body.user.email;
+		var firstName = request.body.user.first;
+		var lastName = request.body.user.last;
+		var flags = request.body.user.flags;
+		console.log("Running query.");
+		db.newUser(username, password, email, firstName, lastName, flags);
+	} else if (type == ADMIN_ADD_SECTION) {
+		console.log(request.body); 
+		var secName = request.body.sec.title;
+		var secDesc = request.body.sec.desc;
+		db.newSection(0, secName, secDesc);
 	}
 
 	response.redirect("/admin", 301);
@@ -284,38 +285,38 @@ function adminAction(request, response)
 
 function login(request, response)
 {	
+	// Check if the user is already authenticated.
+	if (getSession(request) != undefined) {
+		response.redirect('/', 301);
+		return;
+	}
 	
-	//TODO Check if user is already logged in.
-	
-	//TODO This needs to be built in from the content builder
+	// Grab the username and password from the post request.
 	var userName = request.body.user.name;
-	var userPass = request.body.user.pass;	
+	var userPass = request.body.user.password;
 	
+	// Ensure that we have valid data.
 	if (userName == "" || userPass == "") {
 		response.redirect('/login');
 		return;
 	}
 	
-	//Check if pass is valid
-	//TODO compare the pass from the request body with the one in the database
-//	var passValid = checkPass() or something
-	var passValid = true;
-	var userId = 1;
-	
-	//if valid password, update userSessionTable to show user as authenticated
-	if(passValid){
-		//Store session Id in table for current user
-		var session = new userSession(userId, request.cookies['connect.sid'], true, userName, 1);
-		userSessionTable[session.sessionId] = session;
-		util.logger(util.LOG_TO_CONSOLE, 'User: ' + userName + ' logged in at: ' + new Date());
+	// Check the user in the database.
+	db.verifyUser(userName, userPass, function(passValid, id, flags) {
+		//if valid password, update userSessionTable to show user as authenticated
+		if(passValid && id != undefined){
+			//Store session Id in table for current user
+			var session = new userSession(id, request.cookies['connect.sid'], true, userName, flags);
+			userSessionTable[session.sessionId] = session;
+			util.logger(util.LOG_TO_CONSOLE, 'User: ' + userName + ' logged in at: ' + new Date());
 				
-		//Redirect user to home page.
-		response.redirect('/');
-	}
-	else{
-		//Display message to user
-		next(new Error('Invalid Username/Password'));
-	}	
+			//Redirect user to home page.
+			response.redirect('/');
+		}
+		else{
+			response.redirect('/login', 301);
+		}
+	});	
 }
 
 /**
@@ -334,6 +335,8 @@ function logout(request, response){
 		//Not sure if this should be a error since anyone can navigate to the /logout url even if they're not
 		//logged in.  Could change that though.  		
 	}
+	
+	response.redirect('/login', 301);
 }
 
 /**

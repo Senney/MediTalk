@@ -5,5 +5,6 @@ function submitForm(fieldName, formName) {
 	}
 	
 	pw.value = hex_sha256(pw.value);
+	console.log("Hash: " + pw.value);
 	document.getElementById(formName).submit();
 }

@@ -1,0 +1,11 @@
+extends layout
+
+block header
+	link(rel='stylesheet', href='/Styles/viewpost.css')
+	script(src='/jquery.timeago.js')
+	
+	p.postTitle #{post.title}
+	p.postInfo 
+		#{post.author} -- #{post.postTime}
+block content
+	p #{post.content}

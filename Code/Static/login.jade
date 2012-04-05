@@ -1,0 +1,19 @@
+doctype 5
+html(lang="en")
+	head
+		script(src = '/hash.js')
+		script(src = '/jquery-1.7.1.min.js')
+		script(src = '/passhash.js')
+		link(rel = 'stylesheet', href = '/Styles/mainstyles.css')
+		link(rel = 'stylesheet', href = '/Styles/login_styles.css')
+		title= "MediTalk Login"
+	
+	body(onkeyup
+		div#loginBox
+			p.label Please Login Below
+			form#loginForm(action='/login', method='post')
+				p.label Username
+				input#un(name='user[name]')
+				p.label Password
+				input#pw(name='user[password]', type='password')
+				button(name='subButton', onclick='submitForm("pw", "loginForm")', type='button') Login

@@ -1,3 +1,10 @@
+html {
+	width: 100%; height: 100%;
+	background-image: url('/images/meditalk.png');
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+
 body {
 	font-family: helvetica;
 	margin-left: auto; 
@@ -18,6 +25,12 @@ div.midDiv {
 	background: #E6E6E6;
 }
 
+p.title {
+	font-size: 18px;
+	margin-top: 3px;
+	margin-left: 6px;
+}
+
 div#contentContainer {
 	padding: 0;
 	bottom: 3%;
@@ -26,4 +39,11 @@ div#contentContainer {
 
 a {
 	text-decoration: none;
+}
+
+img.centerImage {
+	position: absolute;
+	top: 50%; left: 50%;
+	width: 274px; height: 274px;
+	margin-top: -137px; margin-left: -137px;
 }

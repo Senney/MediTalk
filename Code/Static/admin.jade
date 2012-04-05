@@ -1,0 +1,39 @@
+extends layout
+
+block header
+	link(rel='stylesheet', href='/Styles/admin_styles.css')
+	script(src='hash.js')
+	script(src='passhash.js')
+	
+block content
+	div.midDiv
+		p.title Create a New User
+		form#newUserForm(action='/admin', method='post')
+		div.container
+			div.pageElement
+				p Username
+				input#un(name='user[name]')
+			div.pageElement
+				p Password
+				input#pw(name='user[password]')
+			div.pageElement
+				p Email
+				input#email(name='user[email]')
+			div.pageElement
+				p First Name
+				input#first(name='user[first]')
+			div.pageElement
+				p Last Name
+				input#last(name='user[last]')
+			div.pageElement
+				p Flags
+				select#flags(name='user[flags]')
+					option(value='0') Normal User
+					option(value='1') Administrator
+			button(type='button', onclick='submitForm("pw", "newUserForm")') Create User
+				
+		
+	div.midDiv
+		p.title Create a New Section
+		div.container
+					

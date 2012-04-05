@@ -1,0 +1,24 @@
+div#loginBox {
+	width: 200px;
+	height: 200px;
+	margin-left: auto;
+	margin-right: auto;
+	background: white;
+	background-image: url('/images/divbg.png');
+	border: 1px solid;
+	text-align: center;
+}
+
+p.label {
+	margin-top: 10px;
+	margin-bottom: 0px;
+}
+
+input, button {
+	margin-top: 10px;
+	border: 1px solid;
+}
+
+button#loginButton {
+	margin-top: 20px;
+}

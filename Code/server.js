@@ -41,7 +41,7 @@ function userSession(userId, sessionId, auth, uname){
 var userSessionTable = {};
 
 //Default functions that will be called for all requests
-var common = [/*authUser*/];
+var common = [authUser];
 
 /**
  * authUser(req,res, next)
@@ -57,13 +57,9 @@ function authUser(req, res, next){
 	var sessId = req.cookies['connect.sid'];	
 	
 	//Check that session ID has been authenticated 
-	if(userSessionTable[sessId] == undefined){
+	if(userSessionTable[sessId] == undefined || userSessionTable[sessId].auth == 'false'){				
 		//Redirect to login page
-		res.send('You should be logged in');
-	}
-	else if(userSessionTable[sessId].auth == 'false'){				
-		//Redirect to login page
-		res.send('You should be logged in');		
+		res.redirect('/login');		
 	}
 	else{
 		//Continue with normal routing
@@ -157,6 +153,10 @@ function viewPost(request, response)
 	});
 }
 
+function viewNewPost(request, response) {
+		
+}
+
 /**
 	Sends the login page in the response body.
 	@param request an http request object
@@ -165,7 +165,7 @@ function viewPost(request, response)
 	
 function loginPage(request, response)
 {
-	response.send('login')	//stub
+	response.render('login.jade');
 }	
 
 // ********The server functions from this point on are all login/session based and I haven't looked into how that works yet - Chris
@@ -192,7 +192,18 @@ function makeComment(request, response)
 
 function adminPage(request, response)
 {
-	response.send('admin')	//stub
+	var session = userSession(1, 1, 1, "Senney");
+	
+	db.getAllSections(function(rows) {
+		response.render("admin.jade", { 
+			locals: {
+				pageTitle: 'Administration',
+				session: session,
+				sections: rows,
+				}
+	
+		});
+	});
 }
 
 function adminAction(request, response)
@@ -204,22 +215,29 @@ function login(request, response)
 {	
 	//Get user pass from request somehow
 	//TODO This needs to be built in from the content builder
-//	var userName = request.body.user.name;
-//  var userPass = request.body.user.pass;	
+	var userName = request.body.user.name;
+	var userPass = request.body.user.pass;	
+	
+	if (userName == "" || userPass == "") {
+		response.redirect('/login');
+		return;
+	}
 	
 	//Check if pass is valid
 	//TODO compare the pass from the request body with the one in the database
 //	var passValid = checkPass() or something
+	var passValid = true;
+	var userId = 1;
 	
 	//if valid password, update userSessionTable to show user as authenticated
 	if(passValid){
 		//Store session Id in table for current user
-		var session = new userSession(userId, req.cookies['connect.sid'], auth);
+		var session = new userSession(userId, request.cookies['connect.sid'], true);
 		userSessionTable[session.sessionId] = session;
 		util.logger(util.LOG_TO_CONSOLE, 'User: ' + userName + ' logged in at: ' + new Date());
 				
 		//Redirect user to home page.
-		res.send('This should point to the users home page');
+		response.redirect('/');
 	}
 	else{
 		//Display message to user
@@ -236,45 +254,45 @@ function login(request, response)
 function errorHandler(error, request, response)
 {
 	if(error.message == URL_NOT_FOUND)
-		response.send('404 page', 404)	//stub
+		response.send('404 page', 404);	//stub
 	//if else other error types
 	else
-		throw error	
+		throw error;
 }
 
 //the Connect middleware used by the server, basically a series of functions that get called with the request and response objects
 //and a next() function that goes to the next one
 
-server.use(logRequest)
-server.use(express.bodyParser())
-server.use(express.cookieParser())
-server.use(express.session({secret: 'this string is used for signed cookies or something'}))
+server.use(logRequest);
+server.use(express.bodyParser());
+server.use(express.cookieParser());
+server.use(express.session({secret: 'this string is used for signed cookies or something'}));
 server.use(express.static(__dirname + "/Static"));
-server.set('views', __dirname + "/Static")
+server.set('views', __dirname + "/Static");
 server.set('view options', { layout: false });
-server.use(server.router)
-server.error(errorHandler)
+server.use(server.router);
+server.error(errorHandler);
 
 //routing information that express uses in server.router, basically a bunch of regexp matching
 //with any :x captured and added to the request object as request.params.x
 
-server.get('/streams/:catid/:postid', common, viewPost)
-server.get('/streams/:catid', common, viewCategory)
-server.get('/streams/', common, categoryList)
-server.get('/', common, mainPage)
+server.get('/streams/:catid/:postid', common, viewPost);
+server.get('/streams/:catid', common, viewCategory);
+server.get('/streams/', common, categoryList);
+server.get('/', common, mainPage);
 
-server.get('/user', common, viewSettings)
-server.post('/user', common, changeSettings)
+server.get('/user', common, viewSettings);
+server.post('/user', common, changeSettings);
 
-server.post('/streams/:catid/:postid', common, makeComment)
-server.post('/streams/:catid', common, makePost)
+server.post('/streams/:catid/:postid', common, makeComment);
+server.post('/streams/:catid', common, makePost);
 
-server.get('/admin', common, adminPage)
-server.post('/admin', common, adminAction)
+server.get('/admin', common, adminPage);
+server.post('/admin', common, adminAction);
 
-server.get('/login', loginPage)
-server.post('/login', login)
+server.get('/login', loginPage);
+server.post('/login', login);
 
-server.all('*', function() { throw new Error(URL_NOT_FOUND) } ) //catch-all for urls that fall through all the other matches
+server.all('*', function() { throw new Error(URL_NOT_FOUND) } ); //catch-all for urls that fall through all the other matches
 
 server.listen(serverPort);	

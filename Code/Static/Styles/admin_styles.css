@@ -1,0 +1,28 @@
+div.container {
+	position: relative;
+	width: 80%;
+	margin-left: auto; margin-right: auto;
+	background: #f2f2f2;
+	padding: 10px;
+}
+
+div.pageElement {
+	display: inline-block;
+	text-align: center;
+	width: 33%;
+	margin-top: 3px;
+}
+
+p {
+	margin: 0;
+	position: relative;
+}
+
+input, button {
+	border: 1px solid;
+}
+
+button {
+	margin-top: 10px;
+	width: 100%;
+}

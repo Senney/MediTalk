@@ -6,14 +6,19 @@
 var sqlite = require("./node_modules/sqlite3/sqlite3");
 var db = new sqlite.Database("MediTalk.db");
 db.serialize();
-// id | username | password | email | lastSession | firstName | lastName
-db.run("CREATE TABLE IF NOT EXISTS Users ( id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT, lastSession datetime, firstName TEXT, lastName TEXT)");
+// --- USER TABLE ---
+// id | username | password | email | lastSession | firstName | lastName | flags
+db.run("CREATE TABLE IF NOT EXISTS Users ( id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT, lastSession datetime, firstName TEXT, lastName TEXT, flags INTEGER)");
+// --- SECTIONS TABLE ---
 // id | parent | secID | name | description | postCount | watchers
 db.run("CREATE TABLE IF NOT EXISTS Sections ( id INTEGER PRIMARY KEY, parent INTEGER, name TEXT, description TEXT, postCount INTEGER, watchers TEXT)");
+/// --- POSTS TABLE ---
 // id | type | title | content | author | secid | postTime | votes | comments | watchers
 db.run("CREATE TABLE IF NOT EXISTS Posts ( id INTEGER PRIMARY KEY, type INTEGER, title TEXT, content varchar(1000), author INTEGER, secID INTEGER, postTime datetime, votes INTEGER, comments INTEGER, watchers TEXT)");
+// --- COMMENTS TABLE ---
 // id | post | parent | content | author | postTime | votes
 db.run("CREATE TABLE IF NOT EXISTS Comments ( id INTEGER PRIMARY KEY, post INTEGER, parent INTEGER, content TEXT, author INTEGER, postTime datetime, votes INTEGER)");
+// --- DOCUMENTS ---
 // id | location | size | uploadTime | uploader
 db.run("CREATE TABLE IF NOT EXISTS Documents ( id INTEGER PRIMARY KEY, location TEXT, size INTEGER, uploadTime datetime, uploader INTEGER)");
 

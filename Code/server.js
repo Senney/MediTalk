@@ -14,6 +14,7 @@ if(!serverPort)
 var util = require('./Util/util');
 var db = require('./Database/DatabaseWrapper.js');
 var express = require('express');
+var stream = require('./Database/StreamBuilder.js');
 
 var server = express.createServer();
 
@@ -130,18 +131,23 @@ function logRequest(request, response, next)
 function mainPage(request, response)
 {
 	var section = "Memos";
-	var id = 1;
 	var session = getSession(request);
 
-	//response.send('main')	//stub
 	db.getAllSections(function(rows) {
-		response.render('index.jade', {
-			locals: {
-				pageTitle: 'MediTalk',
-				posts: [{title: 'Memo!', url: '/streams/' + section + '/' + id, section: section, author: 'Sean'}],
-				session: session,
-				sections: rows,
-				}	
+		stream.getSectionContentN(section, function(sectionPosts) {
+			if(!sectionPosts)
+				throw new Error(section + ' section nonexistent')
+			else
+			{
+			response.render('index.jade', {
+				locals: {
+					pageTitle: 'MediTalk',
+					posts: sectionPosts,
+					session: session,
+					sections: rows,
+					}	
+				})
+			}
 		});
 	});
 }
@@ -164,8 +170,7 @@ function categoryList(request, response)
 
 function viewCategory(request, response)
 {
-	//stub
-	response.send("category: " +  request.params.catid)
+	response.send() //stub
 }
 
 /**
@@ -179,15 +184,20 @@ function viewPost(request, response)
 	var session = getSession(request);
 	
 	db.getAllSections(function(rows) {
-		response.render("viewpost.jade", { 
-			locals: {
-				pageTitle: 'Viewing Post',
-				session: getSession(request),
-				sections: rows,
-				post: {title: "Test Post", author: "Test Author", time: new Date().toDateString(),
-					content: "This is some test content."},
-				}
-	
+		db.getPost(request.params.postid, function(post) {
+			if(!post)
+				response.redirect('/404', 404);
+			else
+			{
+			response.render("viewpost.jade", { 
+				locals: {
+					pageTitle: 'Viewing Post',
+					session: getSession(request),
+					sections: rows,
+					post: post
+					}
+				})
+			}
 		});
 	});
 }
@@ -388,6 +398,6 @@ server.get('/login', loginPage);
 server.post('/login', login);
 server.get('/logout', logout);
 
-server.all('*', function() { throw new Error(URL_NOT_FOUND) } ); //catch-all for urls that fall through all the other matches
+//server.all('*', function() { throw new Error(URL_NOT_FOUND) } ); //catch-all for urls that fall through all the other matches
 
 server.listen(serverPort);	

@@ -15,7 +15,6 @@ var util = require('./Util/util');
 var db = require('./Database/DatabaseWrapper.js');
 var sb = require('./StreamBuilder/StreamBuilder.js');
 var express = require('express');
-var stream = require('./Database/StreamBuilder.js');
 
 var server = express.createServer();
 

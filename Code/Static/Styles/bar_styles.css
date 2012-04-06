@@ -65,11 +65,17 @@ input#searchBar {
 p#uname {
 	text-align: center;
 	font-weight: bold;
-	width: 100%;
+	width: 65%;
 }
 
 img#gear {
 	position: absolute;
 	top: 15%;
-	right: 10%;
+	right: 20%;
+}
+
+img#logout {
+	position: absolute;
+	top: 15%;
+	right: 5%;
 }

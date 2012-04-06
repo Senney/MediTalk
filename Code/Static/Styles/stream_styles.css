@@ -6,8 +6,7 @@ div.streamDiv {
 	margin-top: 10px;
 		
 	background: #97c5d2;
-	width: 800px;
-	height: 100%;	
+	width: 800px;	
 }
 
 p#streamDivTitle {
@@ -18,9 +17,31 @@ p#streamDivTitle {
 
 div.streamPostContainer {
 	margin: 10px;
-	padding: 5px;
+	padding: 10px;
 	background: #8cbbc8;
-	height: 100%;
+}
+
+div.head {
+	width: 95%;
+	margin-right: auto;
+	margin-left: auto;
+	height: 50px;
+}
+
+p.streamTitle {
+	font-size: 20px;
+	font-weight: bold;
+	padding-left: 10px;
+	padding-top: 15px;
+	margin: 0;
+	float: left;
+}
+
+a.newPost { 
+	position: relative;
+	float: right;
+	padding-top: 15px;
+	padding-right: 10px;
 }
 
 div.streamPost {

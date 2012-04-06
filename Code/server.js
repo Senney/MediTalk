@@ -160,7 +160,12 @@ function categoryList(request, response)
 
 function viewCategory(request, response)
 {
-	response.send() //stub
+	var streamID = request.params.catid;
+	sb.createStream(db, streamID, streamID, 20, getSession(request), function(data) {
+		response.render('viewcategory.jade', { 
+			locals: data,
+		});
+	});
 }
 
 /**
@@ -211,8 +216,6 @@ function loginPage(request, response)
 	
 }	
 
-// ********The server functions from this point on are all login/session based and I haven't looked into how that works yet - Chris
-	
 function viewSettings(request, response)
 {
 	response.send('settings') //stub
@@ -223,9 +226,52 @@ function changeSettings(request, response)
 	response.send('changing settings') //stub
 }
 
+/**
+ * Renders the view for the new post page.
+ * @param request	Incoming request.
+ * @param response	Outgoing response.
+ */ 
+function newPost(request, response) {
+	var stream = request.params.catid;
+	
+	// Ensure that the section exists before we render the new post.
+	db.doesSectionExist(stream, function(exist) {
+		if (exist) {
+			sb.getPageData(db, 'New Post', getSession(request), function(data) {
+				data.stream = stream;
+				response.render('newpost.jade', {
+					locals: data,
+				});
+			});
+		} else {
+			response.redirect('/', 301);
+		}
+	});
+}
+
 function makePost(request, response)
 {
-	viewCategory(request, response)		//stub
+	var stream = request.params.catid;
+	var session = getSession(request);
+	
+	db.doesSectionExist(stream, function(exist) {
+		if (exist) {
+			var title = request.body.post.title;
+			var content = request.body.post.content;
+			
+			// replace newlines with html break tags.
+			
+			content.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + '<br />' + '$2');
+			console.log(content);
+			
+			if (content != '' && title != '')	
+				db.newPost(0, title, content, session.uname, stream);
+						
+			response.redirect('/streams/' + stream, 301);
+		} else {
+			response.redirect('/', 301);
+		}
+	});
 }
 
 function makeComment(request, response)
@@ -235,22 +281,21 @@ function makeComment(request, response)
 
 function adminPage(request, response)
 {
+	// Find our user session
 	var session = getSession(request);
 	
+	// Ensure that said user has permission to be here.
 	if (getSession(request).type != ADMIN_FLAG) {
-		response.redirect('/404', 404);
+		response.redirect('/', 301);
 		return;
 	}
 	
-	db.getAllSections(function(sections) {
+	// Set up the page for rendering.
+	sb.getPageData(db, 'Administration', session, function(data) {
 		db.getAllUsers(function(users) {
+			data.users = users;
 			response.render("admin.jade", { 
-				locals: {
-					pageTitle: 'Administration',
-					session: getSession(request),
-					sections: sections,
-					users: users
-					}
+				locals: data,
 			});
 		});
 	});
@@ -377,8 +422,8 @@ server.get('/', common, mainPage);
 server.get('/user', common, viewSettings);
 server.post('/user', common, changeSettings);
 
-server.post('/streams/:catid/:postid', common, makeComment);
-server.post('/streams/:catid', common, makePost);
+server.get('/new/:catid', common, newPost);
+server.post('/new/:catid', common, makePost);
 
 server.get('/admin', common, adminPage);
 server.post('/admin', common, adminAction);

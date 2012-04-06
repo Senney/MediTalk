@@ -11,10 +11,10 @@ db.serialize();
 db.run("CREATE TABLE IF NOT EXISTS Users ( id INTEGER PRIMARY KEY, username TINYTEXT, password TEXT, email TINYTEXT, lastSession DATETIME, firstName TINYTEXT, lastName TINYTEXT, flags INTEGER)");
 // --- SECTIONS TABLE ---
 // id | parent | secID | name | description | postCount | watchers
-db.run("CREATE TABLE IF NOT EXISTS Sections ( id INTEGER PRIMARY KEY, parent INTEGER, name TINYTEXT, description TINYTEXT, postCount INTEGER, watchers TEXT)");
+db.run("CREATE TABLE IF NOT EXISTS Sections ( id INTEGER PRIMARY KEY, parent TINYTEXT, name TINYTEXT, description MEDIUMTEXT, postCount INTEGER, watchers MEDIUMTEXT)");
 /// --- POSTS TABLE ---
 // id | type | title | content | author | secid | postTime | votes | comments | watchers
-db.run("CREATE TABLE IF NOT EXISTS Posts ( id INTEGER PRIMARY KEY, type INTEGER, title TINYTEXT, content varchar(1000), author TINYTEXT, secID INTEGER, postTime DATETIME, votes INTEGER, comments INTEGER, watchers TEXT)");
+db.run("CREATE TABLE IF NOT EXISTS Posts ( id INTEGER PRIMARY KEY, type INTEGER, title TEXT, content varchar(1000), author TINYTEXT, secID TINYTEXT, postTime DATETIME, votes INTEGER, comments INTEGER, watchers MEDIUMTEXT)");
 // --- COMMENTS TABLE ---
 // id | post | parent | content | author | postTime | votes
 db.run("CREATE TABLE IF NOT EXISTS Comments ( id INTEGER PRIMARY KEY, post INTEGER, parent INTEGER, content TEXT, author INTEGER, postTime DATETIME, votes INTEGER)");
@@ -209,7 +209,7 @@ var getSectionN = function(name, callback) {
  * @param id 			The ID of the section to grab posts from.
  * @param callback		The callback function called with a single argument; the array of all posts in the specified section.
  */
-var getSectionPosts = function(id, callback) {
+var getSectionPosts = function(name, callback) {
 	db.all("SELECT * FROM Posts WHERE secID = ? ORDER BY postTime DESC", id, function(err, rows) {
 		if(err) throw err;
 		callback(rows);
@@ -229,16 +229,11 @@ var getRecentPosts = function(section, numPosts, callback) {
 			callback(rows);
 		});
 	} else {
-		getSectionN(section, function(row) {
-			if (row == undefined) {
-				return;
-			}
+		db.all("SELECT * FROM Posts WHERE secID = ? ORDER BY id DESC LIMIT ?", section, numPosts, function(err, rows) {
+			if(err) throw err;
+			if (!rows) return;
 			
-			id = row.id;
-			db.all("SELECT * FROM Posts WHERE secID = ? ORDER BY id DESC LIMIT ?", id, numPosts, function(err, rows) {
-				if(err) throw err;
-				callback(rows);
-			});
+			callback(rows);
 		});
 	}
 }

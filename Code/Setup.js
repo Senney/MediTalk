@@ -12,4 +12,4 @@ db.newSection(0, "Research and Articles", "A sharing place for new-found researc
 db.newUser(DEFAULT_USER, DEFAULT_PASS, '301meditalk@gmail.com', 'MediTalk', 'Admin', '1');
 
 // Create a default post.
-db.newPost(0, "Welcome to MediTalk", "Welcome, friend, to MediTalk. This is a default post.", "meditalk", 0);
+db.newPost(0, "Welcome to MediTalk", "Welcome, friend, to MediTalk. This is a default post.", "meditalk", "Memos");

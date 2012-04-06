@@ -17,18 +17,51 @@ var createStream = function(db, pageTitle, streamName, numPosts, userSession, ca
 		console.log("createStream requires a database to be defined.");
 		return;
 	}
-
-	var retObj = {};
-	retObj.pageTitle = pageTitle;
-	retObj.session = userSession;
-	db.getAllSections(function(secs) {
+	
+	getPageData(db, pageTitle, userSession, function(retObj) {
+		if (streamName == 'all')
+			retObj.isFrontPage = true;
+		else
+			retObj.isFrontPage = false;
+		
 		db.getRecentPosts(streamName, numPosts, function(posts) {
 			retObj.stream = streamName;
-			retObj.posts = posts;
-			retObj.sections = secs;
+			retObj.posts = parsePosts(posts);
 			callback(retObj);
 		});
 	});
 }
 
+/**
+ * Acquires general data for pages from the database.
+ * @param db		The database which we're connecting to.
+ * @param pageTitle	The title for the page.
+ * @param userSession 	The session of the user viewing the page.
+ * @param callback	The callback into which we'll pass the data. Format: callback(data)
+ */
+var getPageData = function(db, pageTitle, userSession, callback) {
+	var retObj = {};
+	db.getAllSections(function(secs) {
+		retObj.pageTitle = pageTitle;
+		retObj.session = userSession;
+		retObj.sections = secs;
+		callback(retObj);
+	});
+}
+
+/**
+ * Parses a list of posts, creating a URL for each one.
+ * @param posts		The array of posts from the database.
+ * @returns posts 	{Object} An array of posts.
+ */
+var parsePosts = function(posts) {
+	for (var i in posts) {
+		posts[i].url = '/streams/' + posts[i].secID + '/' + posts[i].id;
+	}
+	
+	return posts;
+}
+
+// Export the required functions.
 exports.createStream = createStream;
+exports.getPageData = getPageData;

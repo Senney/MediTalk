@@ -1,7 +1,15 @@
 extends layout
 
 block header
-	This is the header.
+	link(rel='stylesheet', href='/Styles/newpost.css')
 
 block content
-	This is the content.
+	div#container
+		p#newPostHead New Post
+		p#newPostInfo Posting To: #{stream}
+		p.noBottomMargin#newPostTitle Title
+		form#postForm(method='post')
+			input#title(name='post[title]', maxlength='254')
+			p.noBottomMargin#newPostBodyText Post Content
+			textarea#content(name='post[content]')
+			input#submitPost(type='submit', name='post[submit]', value='Submit Post')

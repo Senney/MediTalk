@@ -11,3 +11,7 @@ p.postInfo {
 	border-bottom: 1px solid;
 	width: 100%;
 }
+
+p.postContent {
+	white-space: pre;
+}

@@ -1,5 +1,8 @@
 div.streamDiv
+	if (posts.length == 0)
+		div.streamPostContainer
+			p.streamPostTitle No Recent Posts
 	- each post in posts
 		div.streamPostContainer
 			p.streamPostTitle: a(href='#{post.url}') #{post.title}
-			p.streamPostInfo #{post.section}
+			p.streamPostInfo Posted By: #{post.author} -- #{post.postTime}

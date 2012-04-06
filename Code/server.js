@@ -13,6 +13,7 @@ if(!serverPort)
 	
 var util = require('./Util/util');
 var db = require('./Database/DatabaseWrapper.js');
+var sb = require('./StreamBuilder/StreamBuilder.js');
 var express = require('express');
 
 var server = express.createServer();
@@ -134,14 +135,9 @@ function mainPage(request, response)
 	var session = getSession(request);
 
 	//response.send('main')	//stub
-	db.getAllSections(function(rows) {
+	sb.createStream(db, 'MediTalk', 'all', 20, session, function(data) {
 		response.render('index.jade', {
-			locals: {
-				pageTitle: 'MediTalk',
-				posts: [{title: 'Memo!', url: '/streams/' + section + '/' + id, section: section, author: 'Sean'}],
-				session: session,
-				sections: rows,
-				}	
+			locals: data,
 		});
 	});
 }
@@ -312,8 +308,7 @@ function login(request, response)
 				
 			//Redirect user to home page.
 			response.redirect('/');
-		}
-		else{
+		} else {
 			response.redirect('/login', 301);
 		}
 	});	

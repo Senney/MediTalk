@@ -14,7 +14,7 @@ db.run("CREATE TABLE IF NOT EXISTS Users ( id INTEGER PRIMARY KEY, username TINY
 db.run("CREATE TABLE IF NOT EXISTS Sections ( id INTEGER PRIMARY KEY, parent INTEGER, name TINYTEXT, description TINYTEXT, postCount INTEGER, watchers TEXT)");
 /// --- POSTS TABLE ---
 // id | type | title | content | author | secid | postTime | votes | comments | watchers
-db.run("CREATE TABLE IF NOT EXISTS Posts ( id INTEGER PRIMARY KEY, type INTEGER, title TINYTEXT, content varchar(1000), author INTEGER, secID INTEGER, postTime DATETIME, votes INTEGER, comments INTEGER, watchers TEXT)");
+db.run("CREATE TABLE IF NOT EXISTS Posts ( id INTEGER PRIMARY KEY, type INTEGER, title TINYTEXT, content varchar(1000), author TINYTEXT, secID INTEGER, postTime DATETIME, votes INTEGER, comments INTEGER, watchers TEXT)");
 // --- COMMENTS TABLE ---
 // id | post | parent | content | author | postTime | votes
 db.run("CREATE TABLE IF NOT EXISTS Comments ( id INTEGER PRIMARY KEY, post INTEGER, parent INTEGER, content TEXT, author INTEGER, postTime DATETIME, votes INTEGER)");
@@ -95,7 +95,11 @@ var delUserN = function(user) {
 var verifyUser = function(username, password, callback) {
 	db.get("SELECT id, password, flags FROM Users WHERE username = ?", username, function(err, row) {
 		if(err) throw err;
-		callback(password  == row.password, row.id, row.flags);
+		if (row == undefined) {
+			callback(false);
+		} else {		
+			callback(password  == row.password, row.id, row.flags);
+		}
 	});
 }
 
@@ -219,13 +223,17 @@ var getSectionPosts = function(id, callback) {
  * @param callback		Function that takes the array of recent posts as input.
  */
 var getRecentPosts = function(section, numPosts, callback) {
-	if(section === "all") {
+	if(section == "all") {
 		db.all("SELECT * FROM Posts ORDER BY id DESC LIMIT ?", numPosts, function(err, rows) {
 			if(err) throw err;
 			callback(rows);
 		});
 	} else {
 		getSectionN(section, function(row) {
+			if (row == undefined) {
+				return;
+			}
+			
 			id = row.id;
 			db.all("SELECT * FROM Posts WHERE secID = ? ORDER BY id DESC LIMIT ?", id, numPosts, function(err, rows) {
 				if(err) throw err;

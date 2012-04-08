@@ -1,13 +1,14 @@
-div.streamDiv
-	div.head
-		p.streamTitle #{pageTitle}
-		if (!isFrontPage)
-			a.newPost(href='/new/#{stream}') Create a New Post
+div.padBottom
+	div.streamDiv
+		div.head
+			p.streamTitle #{pageTitle}
+			if (!isFrontPage)
+				a.newPost(href='/new/#{stream}') Create a New Post
 		
-	if (posts.length == 0)
-		div.streamPostContainer
-			p.streamPostTitle No Recent Posts
-	- each post in posts
-		div.streamPostContainer
-			p.streamPostTitle: a(href='#{post.url}') #{post.title}
-			p.streamPostInfo #{post.secID} / Posted By: #{post.author} / #{post.postTime}
+		if (posts.length == 0)
+			div.streamPostContainer
+				p.streamPostTitle No Recent Posts
+		- each post in posts
+			div.streamPostContainer
+				p.streamPostTitle: a(href='#{post.url}') #{post.title}
+				p.streamPostInfo #{post.secID} / Posted By: #{post.author} / #{post.postTime}

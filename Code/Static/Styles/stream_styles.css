@@ -9,6 +9,10 @@ div.streamDiv {
 	width: 800px;	
 }
 
+div.padBottom {
+	padding-bottom: 80px;
+}
+
 p#streamDivTitle {
 	margin: 0px;
 	font-size: 16pt;

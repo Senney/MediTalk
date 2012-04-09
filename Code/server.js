@@ -168,7 +168,7 @@ function viewCategory(req, res)
 				});
 			});
 		} else {
-			res.redirect("/", 301);
+			res.redirect("/", SERVER_REDIRECT);
 		}
 	});
 }

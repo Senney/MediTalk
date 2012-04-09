@@ -69,7 +69,7 @@ function authUser(req, res, next){
 	var sessId = req.cookies['connect.sid'];	
 	
 	//Check that session ID has been authenticated 
-	if(userSessionTable[sessId] == undefined || userSessionTable[sessId].auth == 'false'){				
+	if(userSessionTable[sessId] == undefined || userSessionTable[sessId].auth == false){				
 		//Redirect to login page
 		res.redirect('/login');		
 	}
@@ -206,7 +206,7 @@ function loginPage(req, res)
 {
 	//Check if user is already logged in
 	var sessId = req.cookies['connect.sid'];
-	if(userSessionTable[sessId] != undefined && userSessionTable[sessId].auth == 'true'){
+	if(userSessionTable[sessId] != undefined && userSessionTable[sessId].auth == true){
 		res.redirect('/');
 	}
 	else{

@@ -4,6 +4,24 @@ html(lang="en")
 		script(src = '/hash.js')
 		script(src = '/jquery-1.7.1.min.js')
 		script(src = '/passhash.js')
+		script
+			// Script to submit a form when enter is pressed.
+			// Referenced from http://www.htmlcodetutorial.com/forms/index_famsupp_157.html
+			function submitEnter(field, e) {
+				var keycode;
+				if (window.event) keycode = window.event.keycode;
+				else if (e) keycode = e.which;
+				else return true;
+				
+				if (keycode == 13) {
+					submitForm('pwUnhash', 'pw', 'loginForm');
+					return false;
+				} else {
+					return true;
+				}
+			
+			}
+
 		link(rel = 'stylesheet', href = '/Styles/mainstyles.css')
 		link(rel = 'stylesheet', href = '/Styles/login_styles.css')
 		title= "MediTalk Login"
@@ -15,5 +33,6 @@ html(lang="en")
 				p.label Username
 				input#un(name='user[name]')
 				p.label Password
-				input#pw(name='user[password]', type='password')
-				button(name='subButton', onclick='submitForm("pw", "loginForm")', type='button') Login
+				input#pw(name='user[password]', type='hidden')
+			input#pwUnhash(type='password', onKeyPress='submitEnter(this, event)')
+			button(name='subButton', onclick='submitForm("pwUnhash", "pw", "loginForm")', type='button') Login

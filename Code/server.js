@@ -82,11 +82,11 @@ function authUser(req, res, next){
 
 /**
  * Returns the session of the users request.
- * @param request	The incoming http request.
+ * @param req	The incoming http request.
  * @returns The session of the user.
  */
-function getSession(request) {
-	return userSessionTable[request.cookies['connect.sid']];
+function getSession(req) {
+	return userSessionTable[req.cookies['connect.sid']];
 }
 
  /*
@@ -111,31 +111,31 @@ function cleanSessionTable(){
 
 /**
 	Logs request information to console.
-	@param request an http request object
-	@param response the associated response object
+	@param req an http request object
+	@param res the associated response object
 	@param next the next Connect middleware
 */
 
-function logRequest(request, response, next)
+function logRequest(req, res, next)
 {
-	util.logger(util.LOG_TO_CONSOLE, new Date() + " " + request.method + " request received " + request.url);
+	util.logger(util.LOG_TO_CONSOLE, new Date() + " " + req.method + " request received " + req.url);
 	next()
 }
 
 /**
 	Sends the front page of the site in the response body.
-	@param request an http request object
-	@param response the associated response object
+	@param req an http request object
+	@param res the associated response object
 */
 
-function mainPage(request, response)
+function mainPage(req, res)
 {
 	var section = "Memos";
-	var session = getSession(request);
+	var session = getSession(req);
 
 	//response.send('main')	//stub
 	sb.createStream(db, 'MediTalk', 'all', 20, session, function(data) {
-		response.render('index.jade', {
+		res.render('index.jade', {
 			locals: data,
 		});
 	});
@@ -143,25 +143,25 @@ function mainPage(request, response)
 
 /**
 	Sends the stream category page in the response body.
-	@param request an http request object
-	@param response the associated response object
+	@param req an http request object
+	@param res the associated response object
 */
-function categoryList(request, response)
+function categoryList(req, res)
 {
-	response.send('categories')	//stub
+	res.send('categories')	//stub
 }
 
 /**
 	Sends the category page in the response body for the category specified by the request object.
-	@param request an http request object with a .params.catid field
-	@param response the associated response object
+	@param req an http request object with a .params.catid field
+	@param res the associated response object
 */
 
-function viewCategory(request, response)
+function viewCategory(req, res)
 {
-	var streamID = request.params.catid;
-	sb.createStream(db, streamID, streamID, 20, getSession(request), function(data) {
-		response.render('viewcategory.jade', { 
+	var streamID = req.params.catid;
+	sb.createStream(db, streamID, streamID, 20, getSession(req), function(data) {
+		res.render('viewcategory.jade', { 
 			locals: data,
 		});
 	});
@@ -169,24 +169,24 @@ function viewCategory(request, response)
 
 /**
 	Sends the view post page in the response body for the post specified by the request object.
-	@param request an http request object with a .params.postid field
-	@param response the associated response object
+	@param req an http request object with a .params.postid field
+	@param res the associated response object
 */
 
-function viewPost(request, response)
+function viewPost(req, res)
 {
-	var session = getSession(request);
+	var session = getSession(req);
 	
 	db.getAllSections(function(rows) {
-		db.getPost(request.params.postid, function(post) {
+		db.getPost(req.params.postid, function(post) {
 			if(!post)
-				response.redirect('/404', 404);
+				res.redirect('/404', 404);
 			else
 			{
-			response.render("viewpost.jade", { 
+			res.render("viewpost.jade", { 
 				locals: {
 					pageTitle: 'Viewing Post',
-					session: getSession(request),
+					session: getSession(req),
 					sections: rows,
 					post: post
 					}
@@ -198,65 +198,65 @@ function viewPost(request, response)
 
 /**
 	Sends the login page in the response body.
-	@param request an http request object
-	@param response the associated response object
+	@param req an http request object
+	@param res the associated response object
 */
 	
-function loginPage(request, response)
+function loginPage(req, res)
 {
 	//Check if user is already logged in
-	var sessId = request.cookies['connect.sid'];
+	var sessId = req.cookies['connect.sid'];
 	if(userSessionTable[sessId] != undefined && userSessionTable[sessId].auth == 'true'){
 		res.redirect('/');
 	}
 	else{
-		response.render('login.jade');
+		res.render('login.jade');
 	}	
 	
 }	
 
-function viewSettings(request, response)
+function viewSettings(req, res)
 {
-	response.send('settings') //stub
+	res.send('settings') //stub
 }
 
-function changeSettings(request, response)
+function changeSettings(req, res)
 {
-	response.send('changing settings') //stub
+	res.send('changing settings') //stub
 }
 
 /**
  * Renders the view for the new post page.
- * @param request	Incoming request.
- * @param response	Outgoing response.
+ * @param req	Incoming request.
+ * @param res	Outgoing response.
  */ 
-function newPost(request, response) {
-	var stream = request.params.catid;
+function newPost(req, res) {
+	var stream = req.params.catid;
 	
 	// Ensure that the section exists before we render the new post.
 	db.doesSectionExist(stream, function(exist) {
 		if (exist) {
-			sb.getPageData(db, 'New Post', getSession(request), function(data) {
+			sb.getPageData(db, 'New Post', getSession(req), function(data) {
 				data.stream = stream;
-				response.render('newpost.jade', {
+				res.render('newpost.jade', {
 					locals: data,
 				});
 			});
 		} else {
-			response.redirect('/', 301);
+			res.redirect('/', 301);
 		}
 	});
 }
 
-function makePost(request, response)
+function makePost(req, res)
 {
-	var stream = request.params.catid;
-	var session = getSession(request);
+	var stream = req.params.catid;
+	var session = getSession(req);
 	
 	db.doesSectionExist(stream, function(exist) {
 		if (exist) {
-			var title = request.body.post.title;
-			var content = request.body.post.content;
+			var title = req.body.post.title;
+			var content = req.body.post.content;
 			
 			// replace newlines with html break tags.
 			
@@ -266,26 +266,26 @@ function makePost(request, response)
 			if (content != '' && title != '')	
 				db.newPost(0, title, content, session.uname, stream);
 						
-			response.redirect('/streams/' + stream, 301);
+			res.redirect('/streams/' + stream, 301);
 		} else {
-			response.redirect('/', 301);
+			res.redirect('/', 301);
 		}
 	});
 }
 
-function makeComment(request, response)
+function makeComment(req, res)
 {
-	viewPost(request,response)		//stub
+	viewPost(req,res)		//stub
 }
 
-function adminPage(request, response)
+function adminPage(req, res)
 {
 	// Find our user session
-	var session = getSession(request);
+	var session = getSession(req);
 	
 	// Ensure that said user has permission to be here.
-	if (getSession(request).type != ADMIN_FLAG) {
-		response.redirect('/', 301);
+	if (getSession(req).type != ADMIN_FLAG) {
+		res.redirect('/', 301);
 		return;
 	}
 	
@@ -293,55 +293,55 @@ function adminPage(request, response)
 	sb.getPageData(db, 'Administration', session, function(data) {
 		db.getAllUsers(function(users) {
 			data.users = users;
-			response.render("admin.jade", { 
+			res.render("admin.jade", { 
 				locals: data,
 			});
 		});
 	});
 }
 
-function adminAction(request, response)
+function adminAction(req, res)
 {
-	if (getSession(request).type != ADMIN_FLAG) {
-		response.redirect('/404', 404);
+	if (getSession(req).type != ADMIN_FLAG) {
+		res.redirect('/404', 404);
 		return;
 	}
 
-	var type = request.body.type;
+	var type = req.body.type;
 	if (type == ADMIN_ADD_USER) {
-		var username = request.body.user.name;
-		var password = request.body.user.password;
-		var email = request.body.user.email;
-		var firstName = request.body.user.first;
-		var lastName = request.body.user.last;
-		var flags = request.body.user.flags;
+		var username = req.body.user.name;
+		var password = req.body.user.password;
+		var email = req.body.user.email;
+		var firstName = req.body.user.first;
+		var lastName = req.body.user.last;
+		var flags = req.body.user.flags;
 		console.log("Running query.");
 		db.newUser(username, password, email, firstName, lastName, flags);
 	} else if (type == ADMIN_ADD_SECTION) {
-		console.log(request.body); 
-		var secName = request.body.sec.title;
-		var secDesc = request.body.sec.desc;
+		console.log(req.body); 
+		var secName = req.body.sec.title;
+		var secDesc = req.body.sec.desc;
 		db.newSection(0, secName, secDesc);
 	}
 
-	response.redirect("/admin", 301);
+	res.redirect("/admin", 301);
 }
 
-function login(request, response)
+function login(req, res)
 {	
 	// Check if the user is already authenticated.
-	if (getSession(request) != undefined) {
-		response.redirect('/', 301);
+	if (getSession(req) != undefined) {
+		res.redirect('/', 301);
 		return;
 	}
 	
 	// Grab the username and password from the post request.
-	var userName = request.body.user.name;
-	var userPass = request.body.user.password;
+	var userName = req.body.user.name;
+	var userPass = req.body.user.password;
 	
 	// Ensure that we have valid data.
 	if (userName == "" || userPass == "") {
-		response.redirect('/login');
+		res.redirect('/login');
 		return;
 	}
 	
@@ -350,26 +350,26 @@ function login(request, response)
 		//if valid password, update userSessionTable to show user as authenticated
 		if(passValid && id != undefined){
 			//Store session Id in table for current user
-			var session = new userSession(id, request.cookies['connect.sid'], true, userName, flags);
+			var session = new userSession(id, req.cookies['connect.sid'], true, userName, flags);
 			userSessionTable[session.sessionId] = session;
 			util.logger(util.LOG_TO_CONSOLE, 'User: ' + userName + ' logged in at: ' + new Date());
 				
 			//Redirect user to home page.
-			response.redirect('/');
+			res.redirect('/');
 		} else {
-			response.redirect('/login', 301);
+			res.redirect('/login', 301);
 		}
 	});	
 }
 
 /**
  * Removes the current user from the session table, thereby logging them out.
- * @param request Http request object
- * @param response Http response object
+ * @param req Http request object
+ * @param res Http response object
  */
-function logout(request, response){
+function logout(req, res){
 	//Remove session Id from table
-	var session = request.cookies['connect.sid'];
+	var session = req.cookies['connect.sid'];
 	if(userSessionTable[session] != undefined){
 		util.logger(util.LOG_TO_CONSOLE, 'User: ' + userSessionTable[session].userId + ' logged out at: ' + new Date());
 		delete userSessionTable[session];
@@ -379,19 +379,19 @@ function logout(request, response){
 		//logged in.  Could change that though.  		
 	}
 	
-	response.redirect('/login', 301);
+	res.redirect('/login', 301);
 }
 
 /**
 	Sends the appropriate http response given an error thrown by a server function.
 	@param error the error thrown
-	@param request the http request object that was being served
-	@param response the associated response object
+	@param req the http request object that was being served
+	@param res the associated response object
 */
-function errorHandler(error, request, response)
+function errorHandler(error, req, res)
 {
 	if(error.message == URL_NOT_FOUND)
-		response.send('404 page', 404);	//stub
+		res.send('404 page', 404);	//stub
 	//if else other error types
 	else
 		throw error;
@@ -411,7 +411,7 @@ server.use(server.router);
 server.error(errorHandler);
 
 //routing information that express uses in server.router, basically a bunch of regexp matching
-//with any :x captured and added to the request object as request.params.x
+//with any :x captured and added to the request object as req.params.x
 
 server.get('/streams/:catid/:postid', common, viewPost);
 server.get('/streams/:catid', common, viewCategory);

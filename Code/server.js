@@ -22,6 +22,7 @@ var server = express.createServer();
 const ROOT_DIRECTORY = ".";
 
 //Constants for different error types mapped to http status codes
+const SERVER_REDIRECT = 301;
 const ACTION_NOT_FOUND = 404;
 const URL_NOT_FOUND = 404;
 const INVALID_FILE_EXTENSION = 415;
@@ -232,7 +233,7 @@ function newPost(req, res) {
 				});
 			});
 		} else {
-			res.redirect('/', 301);
+			res.redirect('/', SERVER_REDIRECT);
 		}
 	});
 }
@@ -260,9 +261,9 @@ function makePost(req, res)
 			if (content != '' && title != '')	
 				db.newPost(0, title, content, session.uname, stream);
 						
-			res.redirect('/streams/' + stream, 301);
+			res.redirect('/streams/' + stream, SERVER_REDIRECT);
 		} else {
-			res.redirect('/', 301);
+			res.redirect('/', SERVER_REDIRECT);
 		}
 	});
 }
@@ -279,7 +280,7 @@ function adminPage(req, res)
 	
 	// Ensure that said user has permission to be here.
 	if (getSession(req).type != ADMIN_FLAG) {
-		res.redirect('/', 301);
+		res.redirect('/', SERVER_REDIRECT);
 		return;
 	}
 	
@@ -301,29 +302,35 @@ function adminPage(req, res)
  */ 
 function adminAction(req, res)
 {
+	// Ensure that our current user is properly authenticated as an administrator.
 	if (getSession(req).type != ADMIN_FLAG) {
 		res.redirect('/', 404);
 		return;
 	}
 
+	// Find the type of request.
 	var type = req.body.type;
 	if (type == ADMIN_ADD_USER) {
+		// Get the data from our UI.
 		var username = req.body.user.name;
 		var password = req.body.user.password;
 		var email = req.body.user.email;
 		var firstName = req.body.user.first;
 		var lastName = req.body.user.last;
 		var flags = req.body.user.flags;
-		console.log("Running query.");
+		
+		// Submit to database.
 		db.newUser(username, password, email, firstName, lastName, flags);
 	} else if (type == ADMIN_ADD_SECTION) {
-		console.log(req.body); 
+		// Get the data from our UI.
 		var secName = req.body.sec.title;
 		var secDesc = req.body.sec.desc;
+		
+		// Insert to database.
 		db.newSection(0, secName, secDesc);
 	}
 
-	res.redirect("/admin", 301);
+	res.redirect("/admin", SERVER_REDIRECT);
 }
 
 /**
@@ -335,7 +342,7 @@ function login(req, res)
 {	
 	// Check if the user is already authenticated.
 	if (getSession(req) != undefined) {
-		res.redirect('/', 301);
+		res.redirect('/', SERVER_REDIRECT);
 		return;
 	}
 	
@@ -361,7 +368,7 @@ function login(req, res)
 			//Redirect user to home page.
 			res.redirect('/');
 		} else {
-			res.redirect('/login', 301);
+			res.redirect('/login', SERVER_REDIRECT);
 		}
 	});	
 }
@@ -379,7 +386,7 @@ function logout(req, res){
 		delete userSessionTable[session];
 	}
 	
-	res.redirect('/login', 301);
+	res.redirect('/login', SERVER_REDIRECT);
 }
 
 //********not implemented***********

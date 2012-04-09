@@ -133,7 +133,6 @@ function mainPage(req, res)
 	var section = "Memos";
 	var session = getSession(req);
 
-	//response.send('main')	//stub
 	sb.createStream(db, 'MediTalk', 'all', 20, session, function(data) {
 		res.render('index.jade', {
 			locals: data,
@@ -180,7 +179,7 @@ function viewPost(req, res)
 	db.getAllSections(function(rows) {
 		db.getPost(req.params.postid, function(post) {
 			if(!post)
-				res.redirect('/404', 404);
+				res.redirect('/', 404);
 			else
 			{
 			res.render("viewpost.jade", { 
@@ -215,16 +214,6 @@ function loginPage(req, res)
 	
 }	
 
-function viewSettings(req, res)
-{
-	res.send('settings') //stub
-}
-
-function changeSettings(req, res)
-{
-	res.send('changing settings') //stub
-}
-
 /**
  * Renders the view for the new post page.
  * @param req	Incoming request.
@@ -248,6 +237,11 @@ function newPost(req, res) {
 	});
 }
 
+/**
+ * Creates a new post using user input from the request object.
+ * @param req	Incoming request.
+ * @param res	Outgoing response.
+ */ 
 function makePost(req, res)
 {
 	var stream = req.params.catid;
@@ -273,11 +267,11 @@ function makePost(req, res)
 	});
 }
 
-function makeComment(req, res)
-{
-	viewPost(req,res)		//stub
-}
-
+/**
+ * Renders the admin page.
+ * @param req	Incoming request.
+ * @param res	Outgoing response.
+ */ 
 function adminPage(req, res)
 {
 	// Find our user session
@@ -300,10 +294,15 @@ function adminPage(req, res)
 	});
 }
 
+/**
+ * Takes various administrator actions based on the request body.
+ * @param req	Incoming request.
+ * @param res	Outgoing response.
+ */ 
 function adminAction(req, res)
 {
 	if (getSession(req).type != ADMIN_FLAG) {
-		res.redirect('/404', 404);
+		res.redirect('/', 404);
 		return;
 	}
 
@@ -327,6 +326,11 @@ function adminAction(req, res)
 	res.redirect("/admin", 301);
 }
 
+/**
+ * Logs in a user and creates a user session based on input from the request body.
+ * @param req	Incoming request.
+ * @param res	Outgoing response.
+ */ 
 function login(req, res)
 {	
 	// Check if the user is already authenticated.
@@ -374,29 +378,28 @@ function logout(req, res){
 		util.logger(util.LOG_TO_CONSOLE, 'User: ' + userSessionTable[session].userId + ' logged out at: ' + new Date());
 		delete userSessionTable[session];
 	}
-	else{
-		//Not sure if this should be a error since anyone can navigate to the /logout url even if they're not
-		//logged in.  Could change that though.  		
-	}
 	
 	res.redirect('/login', 301);
 }
 
-/**
-	Sends the appropriate http response given an error thrown by a server function.
-	@param error the error thrown
-	@param req the http request object that was being served
-	@param res the associated response object
-*/
-function errorHandler(error, req, res)
+//********not implemented***********
+
+function makeComment(req, res)
 {
-	if(error.message == URL_NOT_FOUND)
-		res.send('404 page', 404);	//stub
-	//if else other error types
-	else
-		throw error;
+	viewPost(req,res)		//stub
 }
 
+function viewSettings(req, res)
+{
+	res.send('settings') //stub
+}
+
+function changeSettings(req, res)
+{
+	res.send('changing settings') //stub
+}
+
+//**********************************
 //the Connect middleware used by the server, basically a series of functions that get called with the request and response objects
 //and a next() function that goes to the next one
 
@@ -408,7 +411,6 @@ server.use(express.static(__dirname + "/Static"));
 server.set('views', __dirname + "/Static");
 server.set('view options', { layout: false });
 server.use(server.router);
-server.error(errorHandler);
 
 //routing information that express uses in server.router, basically a bunch of regexp matching
 //with any :x captured and added to the request object as req.params.x
@@ -431,6 +433,6 @@ server.get('/login', loginPage);
 server.post('/login', login);
 server.get('/logout', logout);
 
-//server.all('*', function() { throw new Error(URL_NOT_FOUND) } ); //catch-all for urls that fall through all the other matches
+server.all('*', function(req, res) { res.redirect('/', 404) } ); //catch-all for urls that fall through all the other matches
 
 server.listen(serverPort);	

@@ -1,7 +1,8 @@
 $(document).ready(setupBar);
 function setupBar() {
-	$("#navMenu").hover(function() {				
-		$("#navMenu").stop().animate( { height: '160px', top: '-140px' }, 120);
+	$("#navMenu").hover(function() {
+		var height = 105 + window.barheight;
+		$("#navMenu").stop().animate( { height: height, top: (-1 * height) + 20, }, 120);
 	}, function() {
 		$("#navMenu").stop().animate( { height: '20px', top: '0px' }, 120);
 	});

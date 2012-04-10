@@ -160,10 +160,16 @@ function categoryList(req, res)
 function viewCategory(req, res)
 {
 	var streamID = req.params.catid;
-	sb.createStream(db, streamID, streamID, 20, getSession(req), function(data) {
-		res.render('viewcategory.jade', { 
-			locals: data,
-		});
+	db.doesSectionExist(streamID, function(exists) {
+		if (exists) {
+			sb.createStream(db, streamID, streamID, 20, getSession(req), function(data) {
+				res.render('viewcategory.jade', { 
+					locals: data,
+				});
+			});
+		} else {
+			res.redirect("/", SERVER_REDIRECT);
+		}
 	});
 }
 
@@ -252,11 +258,6 @@ function makePost(req, res)
 		if (exist) {
 			var title = req.body.post.title;
 			var content = req.body.post.content;
-			
-			// replace newlines with html break tags.
-			
-			content.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + '<br />' + '$2');
-			console.log(content);
 			
 			if (content != '' && title != '')	
 				db.newPost(0, title, content, session.uname, stream);

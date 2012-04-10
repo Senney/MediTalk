@@ -1,3 +1,10 @@
+if (sections.length)
+	script
+		window.barheight = 18 * #{sections.length};
+else
+	script
+		window.barheight = 220;
+	
 script(src = '/barcontrol.js')
 div#barMain
 	div.navSplitter
@@ -10,9 +17,8 @@ div#barMain
 						li: a(href='/streams/#{sec.name}') #{sec.name}
 				else
 					li No Sections Added
-					
-				br
-				br
+				
+				br	
 				li: a(href='/') Home
 	div.navSplitter
 		div#searchContainer

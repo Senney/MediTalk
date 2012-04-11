@@ -49,14 +49,11 @@ block content
 					button Create Section
 	
 	div.midDiv
-		p.title Delete A User
-		form#deleteUserForm(action='/admin', method='post')
-			input#type(name='type', type='hidden', value='2')
-			div.container
-				if (users.length)
-					- each user in users
-						p#user #{user.username}
-						img(src='/images/delete.png') 
-						br
-					
+		p.title User List
+		div.container
+			if (users.length)
+				- each user in users
+					p#user #{user.username}
+					br
+				
 					

@@ -2,8 +2,8 @@ extends layout
 
 block header
 	link(rel='stylesheet', href='/Styles/admin_styles.css')
-	script(src='hash.js')
-	script(src='passhash.js')
+	script(src='/hash.js')
+	script(src='/passhash.js')
 	
 block content
 	div.midDiv
@@ -55,5 +55,4 @@ block content
 				- each user in users
 					p#user #{user.username}
 					br
-				
 					

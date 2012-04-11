@@ -380,7 +380,7 @@ function logout(req, res){
 	//Remove session Id from table
 	var session = req.cookies['connect.sid'];
 	if(userSessionTable[session] != undefined){
-		util.logger(util.LOG_TO_CONSOLE, 'User: ' + userSessionTable[session].userId + ' logged out at: ' + new Date());
+		util.logger(util.LOG_TO_CONSOLE, 'User: ' + userSessionTable[session].uname + ' logged out at: ' + new Date());
 		delete userSessionTable[session];
 	}
 	
@@ -413,7 +413,7 @@ function changeSettings(req, res)
  */
 function setupServer() {
 	// Log all requests.
-	server.use(logRequest);
+	//server.use(logRequest);
 	
 	// Enable parsing of post bodies.
 	server.use(express.bodyParser());

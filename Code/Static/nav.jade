@@ -18,7 +18,9 @@ div#barMain
 				else
 					li No Sections Added
 				
-				br	
+				br
+				if (session.type == '1')
+					li: a(href='/admin/') Administration	
 				li: a(href='/') Home
 	div.navSplitter
 		div#searchContainer

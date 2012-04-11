@@ -16,16 +16,24 @@ var postTest = function() {
 	dbw.newPost(post3.type, post3.title, post3.content, post3.author, post3.secid);
 	
 	dbw.getPost(1, function(row) {
-		if(row.title == post1.title && row.type == post1.type && row.author == post1.author && row.content == post1.content && row.secid == post1.secID) console.log("Post1: Success");
-		else console.log("Post1: Failure");
+		if(row.title == post1.title && row.type == post1.type && row.author == post1.author && row.content == post1.content && row.secid == post1.secID) console.log("Post1: SUCCESS");
+		else console.log("Post1: FAILURE");
 	});
 	dbw.getPost(2, function(row) {
-		if(row.title == post2.title && row.type == post2.type && row.author == post2.author && row.content == post2.content && row.secid == post2.secID) console.log("Post2: Success");
-		else console.log("Post2: Failure");
+		if(row.title == post2.title && row.type == post2.type && row.author == post2.author && row.content == post2.content && row.secid == post2.secID) console.log("Post2: SUCCESS");
+		else console.log("Post2: FAILURE");
 	});
 	dbw.getPost(3, function(row) {
-		if(row.title == post3.title && row.type == post3.type && row.author == post3.author && row.content == post3.content && row.secid == post3.secID) console.log("Post3: Success");
-		else console.log("Post3: Failure");	});
+		if(row.title == post3.title && row.type == post3.type && row.author == post3.author && row.content == post3.content && row.secid == post3.secID) console.log("Post3: SUCCESS");
+		else console.log("Post3: FAILURE");	});
+		
+	var longstr = "this is a test string";
+	for(i=0; i<10; i++) { longstr += longstr.concat(longstr); }
+	dbw.newPost(0, longstr, longstr, "me", 1);
+	dbw.getPost(4, function(row) {
+		if(row === undefined) console.log("Content too long: SUCCESS");
+		else console.log("Content too long: FAILURE");
+	});
 }
 
 var userTest = function() {
@@ -33,24 +41,25 @@ var userTest = function() {
 	var user2 = {username: "user1", password: "123", email: "hey@there.you", firstName: "T", lastName: "G"};
 	
 	dbw.newUser(user1.username, user1.password, user1.email, user1.firstName, user1.lastName);
+	dbw.newUser(user2.username, user2.password, user2.email, user2.firstName, user2.lastName);
+
 	dbw.verifyUser(user1.username, user1.password, function(check) {
-		if(check) console.log("checkUser: SUCCESS");
-		else console.log("checkUser: FAILURE");
+		if(check) console.log("verifyUser: SUCCESS");
+		else console.log("verifyUser: FAILURE");
 	});
-	
 	dbw.getUser("user1", function(row) {
-		console.log(row.lastSession);
-		if(row.username == user1.username && row.email == user1.email && row.firstName == user1.firstName && row.lastName == user1.lastName) console.log("getUser: SUCCESS");
+		if(row === undefined) console.log("getUser: FAILURE");
+		else if(row.username == user1.username && row.email == user1.email && row.firstName == user1.firstName && row.lastName == user1.lastName) console.log("getUser: SUCCESS");
 		else console.log("getUser: FAILURE");
 	});
-	dbw.delUser(1);
-	dbw.getUser(1, function(row) {
-		if(row === undefined) console.log("delUser: SUCCESS");
-		else console.log("delUser: FAILURE");
-	});
-	dbw.getUser(2, function(row) {
+	dbw.getUser("user2", function(row) {
 		if(row === undefined) console.log("Add same username: SUCCESS");
 		else console.log("Add same username: FAILURE");
+	});
+	dbw.delUser(1);
+	dbw.getUser("user1", function(row) {
+		if(row === undefined) console.log("delUser: SUCCESS");
+		else console.log("delUser: FAILURE");
 	});
 }
 

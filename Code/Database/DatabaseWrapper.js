@@ -36,7 +36,6 @@ db.run("CREATE TABLE IF NOT EXISTS Documents ( id INTEGER PRIMARY KEY, location 
  */
 var newPost = function (type, title, content, author, secid) {
 	if((content.length < TEXT_LENGTH) && (title.length < TINY_LENGTH)) {
-		console.log(title.length + ":" + content.length);
 		db.run("INSERT INTO Posts (type, title, content, author, secID, postTime, votes, comments, watchers) VALUES ($type, $title, $content, $author, $secid, CURRENT_TIMESTAMP, 0, 0, '')", 
 			   { $type: type, $title: title, $content: content, $author: author, $secid: secid });
 		return true;
@@ -125,11 +124,11 @@ var doesUserExist = function(username, callback) {
 
 /*
  * Gets the username of the user along with some miscellaneous information and passes it all in to a callback function.
- * @param id			ID of the user
+ * @param name			Username of the user
  * @param callback		Callback that takes the object containing all the data as input. Contents: username, email, lastSession, firstName, lastName
  */
-var getUser = function(id, callback) {
-	db.get("SELECT username, email, lastSession, firstName, lastName FROM Users WHERE username = ?", id, function(err, row) {
+var getUser = function(name, callback) {
+	db.get("SELECT username, email, lastSession, firstName, lastName FROM Users WHERE username = ?", name, function(err, row) {
 		if(err) throw err;
 		callback(row);
 	});
@@ -217,7 +216,7 @@ var getSectionN = function(name, callback) {
  * @param id 			The ID of the section to grab posts from.
  * @param callback		The callback function called with a single argument; the array of all posts in the specified section.
  */
-var getSectionPosts = function(name, callback) {
+var getSectionPosts = function(id, callback) {
 	db.all("SELECT * FROM Posts WHERE secID = ? ORDER BY postTime DESC", id, function(err, rows) {
 		if(err) throw err;
 		callback(rows);

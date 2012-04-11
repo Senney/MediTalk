@@ -33,10 +33,6 @@ div#navMenu {
 	overflow: hidden;
 }
 
-div#homeButton {
-	
-}
-
 p#navTitle {
 	margin: 1px 0px 0px 0px;
 }
@@ -71,6 +67,10 @@ p#uname {
 	padding-top: 15px;
 	font-weight: bold;
 	width: 65%;
+}
+
+img {
+	border: 0px;
 }
 
 img#gear {

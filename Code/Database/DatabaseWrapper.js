@@ -76,16 +76,8 @@ var newUser = function(username, password, email, firstName, lastName, flags) {
  * Deletes a user from the database by id.
  * @param id 			ID of the user to be deleted.
  */
-var delUser = function(id) {
-	db.run("DELETE FROM Users WHERE id = ?", id);
-}
-
-/*
- * Deletes a user from the database by username.
- * @param user 			Username of the user to be deleted.
- */
-var delUserN = function(user) {
-	db.run("DELETE FROM Users WHERE username = ?", user);
+var delUser = function(name) {
+	db.run("DELETE FROM Users WHERE username = ?", name);
 }
 
 /*
@@ -286,7 +278,6 @@ exports.getPost = getPost;
 exports.newUser = newUser;
 exports.doesUserExist = doesUserExist;
 exports.delUser = delUser;
-exports.delUserN = delUserN;
 exports.getUser = getUser;
 exports.getAllUsers = getAllUsers;
 exports.verifyUser = verifyUser;

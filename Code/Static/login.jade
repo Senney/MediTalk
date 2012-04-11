@@ -26,7 +26,7 @@ html(lang="en")
 		link(rel = 'stylesheet', href = '/Styles/login_styles.css')
 		title= "MediTalk Login"
 	
-	body
+	body(onKeyPress='submitEnter(this, event)')
 		div#loginBox
 			p.label Please Login Below
 			form#loginForm(action='/login', method='post')
@@ -34,5 +34,5 @@ html(lang="en")
 				input#un(name='user[name]')
 				p.label Password
 				input#pw(name='user[password]', type='hidden')
-			input#pwUnhash(type='password', onKeyPress='submitEnter(this, event)')
+			input#pwUnhash(type='password')
 			button(name='subButton', onclick='submitForm("pwUnhash", "pw", "loginForm")', type='button') Login

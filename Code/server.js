@@ -148,7 +148,7 @@ function mainPage(req, res)
 */
 function categoryList(req, res)
 {
-	res.send('categories')	//stub
+	res.redirect('/', SERVER_REDIRECT);
 }
 
 /**
@@ -183,20 +183,16 @@ function viewPost(req, res)
 {
 	var session = getSession(req);
 	
-	db.getAllSections(function(rows) {
+	sb.getPageData(db, 'Viewing Post', session, function(data) {
 		db.getPost(req.params.postid, function(post) {
 			if(!post)
-				res.redirect('/', 404);
+				res.redirect('/', URL_NOT_FOUND);
 			else
 			{
-			res.render("viewpost.jade", { 
-				locals: {
-					pageTitle: 'Viewing Post',
-					session: getSession(req),
-					sections: rows,
-					post: post
-					}
-				})
+				data.post = post;
+				res.render("viewpost.jade", { 
+					locals: data,
+				});
 			}
 		});
 	});
@@ -305,12 +301,13 @@ function adminAction(req, res)
 {
 	// Ensure that our current user is properly authenticated as an administrator.
 	if (getSession(req).type != ADMIN_FLAG) {
-		res.redirect('/', 404);
+		res.redirect('/', URL_NOT_FOUND);
 		return;
 	}
 
 	// Find the type of request.
 	var type = req.body.type;
+	// Add a user.
 	if (type == ADMIN_ADD_USER) {
 		// Get the data from our UI.
 		var username = req.body.user.name;
@@ -322,7 +319,7 @@ function adminAction(req, res)
 		
 		// Submit to database.
 		db.newUser(username, password, email, firstName, lastName, flags);
-	} else if (type == ADMIN_ADD_SECTION) {
+	} else if (type == ADMIN_ADD_SECTION) { // Add a section.
 		// Get the data from our UI.
 		var secName = req.body.sec.title;
 		var secDesc = req.body.sec.desc;
@@ -411,32 +408,55 @@ function changeSettings(req, res)
 //the Connect middleware used by the server, basically a series of functions that get called with the request and response objects
 //and a next() function that goes to the next one
 
-server.use(logRequest);
-server.use(express.bodyParser());
-server.use(express.cookieParser());
-server.use(express.session({secret: 'this string is used for signed cookies or something'}));
-server.use(express.static(__dirname + "/Static"));
-server.set('views', __dirname + "/Static");
-server.set('view options', { layout: false });
-server.use(server.router);
+/**
+ * Initialize the server.
+ */
+function setupServer() {
+	// Log all requests.
+	server.use(logRequest);
+	
+	// Enable parsing of post bodies.
+	server.use(express.bodyParser());
+	
+	// Cookie things
+	server.use(express.cookieParser());
+	server.use(express.session({secret: 'CPSC301'}));
+	
+	// Set our static directory
+	server.use(express.static(__dirname + "/Static"));
+	server.set('views', __dirname + "/Static");
+	
+	// Disable a standard layout for jade files.
+	server.set('view options', { layout: false });
+	
+	// Enable restful routing.
+	server.use(server.router);
+}
+
+setupServer();
 
 //routing information that express uses in server.router, basically a bunch of regexp matching
 //with any :x captured and added to the request object as req.params.x
 
+// Stream view pages.
 server.get('/streams/:catid/:postid', common, viewPost);
 server.get('/streams/:catid', common, viewCategory);
 server.get('/streams/', common, categoryList);
 server.get('/', common, mainPage);
 
+// User control pages.
 server.get('/user', common, viewSettings);
 server.post('/user', common, changeSettings);
 
+// New post pages.
 server.get('/new/:catid', common, newPost);
 server.post('/new/:catid', common, makePost);
 
+// Administration pages.
 server.get('/admin', common, adminPage);
 server.post('/admin', common, adminAction);
 
+// User login/logout pages.
 server.get('/login', loginPage);
 server.post('/login', login);
 server.get('/logout', logout);

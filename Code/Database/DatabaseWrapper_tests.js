@@ -43,24 +43,28 @@ var userTest = function() {
 	dbw.newUser(user1.username, user1.password, user1.email, user1.firstName, user1.lastName);
 	dbw.newUser(user2.username, user2.password, user2.email, user2.firstName, user2.lastName);
 
-	dbw.verifyUser(user1.username, user1.password, function(check) {
-		if(check) console.log("verifyUser: SUCCESS");
-		else console.log("verifyUser: FAILURE");
-	});
-	dbw.getUser("user1", function(row) {
-		if(row === undefined) console.log("getUser: FAILURE");
-		else if(row.username == user1.username && row.email == user1.email && row.firstName == user1.firstName && row.lastName == user1.lastName) console.log("getUser: SUCCESS");
-		else console.log("getUser: FAILURE");
-	});
-	dbw.getUser("user2", function(row) {
-		if(row === undefined) console.log("Add same username: SUCCESS");
-		else console.log("Add same username: FAILURE");
-	});
-	dbw.delUser(1);
-	dbw.getUser("user1", function(row) {
-		if(row === undefined) console.log("delUser: SUCCESS");
-		else console.log("delUser: FAILURE");
-	});
+	setTimeout(function() {
+		dbw.verifyUser(user1.username, user1.password, function(check) {
+			if(check) console.log("verifyUser: SUCCESS");
+			else console.log("verifyUser: FAILURE");
+		});
+		dbw.getUser("user1", function(row) {
+			if(row === undefined) console.log("getUser: FAILURE");
+			else if(row.username == user1.username && row.email == user1.email && row.firstName == user1.firstName && row.lastName == user1.lastName) console.log("getUser: SUCCESS");
+			else console.log("getUser: FAILURE");
+		});
+		dbw.getUser("user2", function(row) {
+			if(row === undefined) console.log("Add same username: SUCCESS");
+			else console.log("Add same username: FAILURE");
+		});
+		dbw.delUser("user1");
+		setTimeout(function(){
+			dbw.getUser("user1", function(row) {
+				if(row === undefined) console.log("delUser: SUCCESS");
+				else console.log("delUser: FAILURE");
+			});
+		}, 300);
+	}, 100);
 }
 
 var secTest = function() {

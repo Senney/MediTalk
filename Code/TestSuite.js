@@ -10,15 +10,12 @@ const PASS = "Test Passed";
 const FAIL = "Test Failed";
 
 // Load in our libraries. 
-var fileManager = require("./FileManagement/FileManager_tests");
-var cBuilder = require("./FileManagement/ContentBuilder_tests");
-var sBuilder = require("./StreamBuilder/StreamBuilder_tests")
+var sBuilder = require("./StreamBuilder/StreamBuilder_tests");
+var dbTest = require("./Database/DatabaseWrapper_tests");
 var util = require("./Util/util.js");
 
 // Here we run the tests.
 var runTests = function() {
-	fileManager.runTests(doSimpleTest);
-	cBuilder.runTests(doSimpleTest);
 	sBuilder.runTests(doTest);
 }
 

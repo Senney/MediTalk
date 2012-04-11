@@ -33,7 +33,7 @@ var userTest = function() {
 	var user2 = {username: "user1", password: "123", email: "hey@there.you", firstName: "T", lastName: "G"};
 	
 	dbw.newUser(user1.username, user1.password, user1.email, user1.firstName, user1.lastName);
-	dbw.checkUser(user1.username, user1.password, function(check) {
+	dbw.verifyUser(user1.username, user1.password, function(check) {
 		if(check) console.log("checkUser: SUCCESS");
 		else console.log("checkUser: FAILURE");
 	});

@@ -2,6 +2,9 @@
  * @fileOverview Provides a wrapper for all required interactions with the database, as well as initializing the database on startup. Utilizes the package node-sqlite3.
  * @author Brent Glowinski
  */
+const MEDIUM_LENGTH = 16777215;
+const TEXT_LENGTH = 65535;
+const TINY_LENGTH = 255;
 
 var sqlite = require("../node_modules/sqlite3/sqlite3");
 var db = new sqlite.Database("MediTalk.db");
@@ -11,10 +14,10 @@ db.serialize();
 db.run("CREATE TABLE IF NOT EXISTS Users ( id INTEGER PRIMARY KEY, username TINYTEXT, password TEXT, email TINYTEXT, lastSession DATETIME, firstName TINYTEXT, lastName TINYTEXT, flags INTEGER)");
 // --- SECTIONS TABLE ---
 // id | parent | secID | name | description | postCount | watchers
-db.run("CREATE TABLE IF NOT EXISTS Sections ( id INTEGER PRIMARY KEY, parent TINYTEXT, name TINYTEXT, description MEDIUMTEXT, postCount INTEGER, watchers MEDIUMTEXT)");
+db.run("CREATE TABLE IF NOT EXISTS Sections ( id INTEGER PRIMARY KEY, parent TINYTEXT, name TINYTEXT, description TEXT, postCount INTEGER, watchers MEDIUMTEXT)");
 /// --- POSTS TABLE ---
 // id | type | title | content | author | secid | postTime | votes | comments | watchers
-db.run("CREATE TABLE IF NOT EXISTS Posts ( id INTEGER PRIMARY KEY, type INTEGER, title TEXT, content varchar(1000), author TINYTEXT, secID TINYTEXT, postTime DATETIME, votes INTEGER, comments INTEGER, watchers MEDIUMTEXT)");
+db.run("CREATE TABLE IF NOT EXISTS Posts ( id INTEGER PRIMARY KEY, type INTEGER, title TEXT, content TEXT, author TINYTEXT, secID TINYTEXT, postTime DATETIME, votes INTEGER, comments INTEGER, watchers MEDIUMTEXT)");
 // --- COMMENTS TABLE ---
 // id | post | parent | content | author | postTime | votes
 db.run("CREATE TABLE IF NOT EXISTS Comments ( id INTEGER PRIMARY KEY, post INTEGER, parent INTEGER, content TEXT, author INTEGER, postTime DATETIME, votes INTEGER)");
@@ -29,10 +32,15 @@ db.run("CREATE TABLE IF NOT EXISTS Documents ( id INTEGER PRIMARY KEY, location 
  * @param content	Contents of the post. Can be text, a URL, or the location of a document on the server
  * @param author	The author of the post
  * @param secid		The section the post is associated with
+ * @return			True if post has the right length; false if it doesn't.
  */
 var newPost = function (type, title, content, author, secid) {
-	db.run("INSERT INTO Posts (type, title, content, author, secID, postTime, votes, comments, watchers) VALUES ($type, $title, $content, $author, $secid, CURRENT_TIMESTAMP, 0, 0, '')", 
-		   { $type: type, $title: title, $content: content, $author: author, $secid: secid });
+	if((content.length < TEXT_LENGTH) && (title.length < TINY_LENGTH)) {
+		console.log(title.length + ":" + content.length);
+		db.run("INSERT INTO Posts (type, title, content, author, secID, postTime, votes, comments, watchers) VALUES ($type, $title, $content, $author, $secid, CURRENT_TIMESTAMP, 0, 0, '')", 
+			   { $type: type, $title: title, $content: content, $author: author, $secid: secid });
+		return true;
+	} else return false;
 }
 
 /*

@@ -11,4 +11,4 @@ div.padBottom
 		- each post in posts
 			div.streamPostContainer
 				p.streamPostTitle: a(href='#{post.url}') #{post.title}
-				p.streamPostInfo #{post.secID} / Posted By: #{post.author} / #{post.postTime}
+				p.streamPostInfo <b>#{post.secID}</b> / Posted By: #{post.author} / #{post.postTime}
